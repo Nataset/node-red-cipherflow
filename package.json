@@ -21,7 +21,9 @@
             "ckks-rescaleToNext": "nodes/ckks/ckks-rescaleToNext.js",
             "ckks-modSwitchToLast": "nodes/ckks/ckks-ModSwitchToLast.js",
             "ckks-setScale": "nodes/ckks/ckks-setScale.js",
-            "ckks-add": "nodes/ckks/ckks-add.js"
+            "ckks-add": "nodes/ckks/ckks-add.js",
+            "ckks-multi": "nodes/ckks/ckks-multi.js",
+            "ckks-setContext": "nodes/ckks/ckks-setContext.js"
         }
     },
     "dependencies": {
