@@ -1,0 +1,30 @@
+{
+    "name": "node-red-seal",
+    "version": "1.0.0",
+    "description": "",
+    "main": "node-red-seal.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "node-red": {
+        "nodes": {
+            "ckks-context": "nodes/ckks/ckks-context.js",
+            "ckks-input": "nodes/ckks/ckks-input.js",
+            "ckks-encrypt": "nodes/ckks/ckks-encrypt.js",
+            "ckks-decrypt": "nodes/ckks/ckks-decrypt.js",
+            "ckks-square": "nodes/ckks/ckks-square.js",
+            "ckks-addPlain": "nodes/ckks/ckks-addPlain.js",
+            "ckks-multiPlain": "nodes/ckks/ckks-multiPlain.js",
+            "ckks-rescaleToNext": "nodes/ckks/ckks-rescaleToNext.js",
+            "ckks-modSwitchToLast": "nodes/ckks/ckks-ModSwitchToLast.js",
+            "ckks-setScale": "nodes/ckks/ckks-setScale.js",
+            "ckks-add": "nodes/ckks/ckks-add.js"
+        }
+    },
+    "dependencies": {
+        "node-seal": "^5.0.0"
+    }
+}
