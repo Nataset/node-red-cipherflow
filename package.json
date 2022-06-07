@@ -1,14 +1,20 @@
 {
-    "name": "node-red-seal",
-    "version": "1.0.0",
-    "description": "",
-    "main": "node-red-seal.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+    "name": "node-red-cipherflow",
+    "version": "0.1.0",
+    "description": "microsoft seal for Node-RED.",
+    "main": "nodes/ckks/ckks-encrypt.js",
+    "keywords": [
+        "node-red",
+        "homomorphic",
+        "encryption",
+        "homomorphic-encryption",
+        "microsoft seal"
+    ],
+    "author": {
+        "name": "Nataset Tanabodee",
+        "email": "nataset.t@ku.th"
     },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
+    "license": "MIT",
     "node-red": {
         "nodes": {
             "ckks-context": "nodes/ckks/ckks-context.js",
@@ -19,7 +25,7 @@
             "ckks-addPlain": "nodes/ckks/ckks-addPlain.js",
             "ckks-multiPlain": "nodes/ckks/ckks-multiPlain.js",
             "ckks-rescaleToNext": "nodes/ckks/ckks-rescaleToNext.js",
-            "ckks-modSwitchToLast": "nodes/ckks/ckks-ModSwitchToLast.js",
+            "ckks-modSwitchToLast": "nodes/ckks/ckks-modSwitchToLast.js",
             "ckks-setScale": "nodes/ckks/ckks-setScale.js",
             "ckks-add": "nodes/ckks/ckks-add.js",
             "ckks-multi": "nodes/ckks/ckks-multi.js",
