@@ -2,8 +2,12 @@ const SEAL = require('node-seal');
 
 module.exports = async function (RED) {
     const seal = await SEAL();
+
     function CKKSContext(node) {
         RED.nodes.createNode(this, node);
+        // const globalContext = this.context().global;
+        // globalContext.set('seal', seal);
+
         const schemeType = seal.SchemeType.ckks;
         const securityLevel = seal.SecurityLevel.none;
         const polyModulusDegree = node.polyModulus;
@@ -35,15 +39,18 @@ module.exports = async function (RED) {
         this.poluModulus = node.polyModulus;
         this.coeffModulus = node.coeffModulus;
         this.scale = Math.pow(2, node.scale);
+        this.seal = seal;
         this.secretKey = secretKey;
         this.publicKey = publicKey;
         this.relinKey = relinKey;
-        this.galoisKey = publicKey;
+        this.galoisKey = galoisKey;
         this.encoder = encoder;
         this.encryptor = encryptor;
         this.decryptor = decryptor;
         this.evaluator = evaluator;
         this.context = context;
+
+        console.log('WTF IS THIS SHIT');
     }
     RED.nodes.registerType('ckks-context', CKKSContext);
 };

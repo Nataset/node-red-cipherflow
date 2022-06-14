@@ -1,6 +1,6 @@
 const SEAL = require('node-seal');
 
-module.exports = function (RED) {
+module.exports = async function (RED) {
     function ckksSetContext(config) {
         RED.nodes.createNode(this, config);
         const flowContext = this.context().flow;

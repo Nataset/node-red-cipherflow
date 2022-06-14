@@ -17,19 +17,12 @@
     "license": "MIT",
     "node-red": {
         "nodes": {
-            "ckks-context": "nodes/ckks/ckks-context.js",
-            "ckks-input": "nodes/ckks/ckks-input.js",
-            "ckks-encrypt": "nodes/ckks/ckks-encrypt.js",
-            "ckks-decrypt": "nodes/ckks/ckks-decrypt.js",
-            "ckks-square": "nodes/ckks/ckks-square.js",
-            "ckks-addPlain": "nodes/ckks/ckks-addPlain.js",
-            "ckks-multiPlain": "nodes/ckks/ckks-multiPlain.js",
-            "ckks-rescaleToNext": "nodes/ckks/ckks-rescaleToNext.js",
-            "ckks-modSwitchToLast": "nodes/ckks/ckks-modSwitchToLast.js",
-            "ckks-setScale": "nodes/ckks/ckks-setScale.js",
-            "ckks-add": "nodes/ckks/ckks-add.js",
-            "ckks-multi": "nodes/ckks/ckks-multi.js",
-            "ckks-setContext": "nodes/ckks/ckks-setContext.js"
+            "ckks-context": "nodes/ckks/context.js",
+            "ckks-input": "nodes/ckks/input.js",
+            "ckks-injectContext": "nodes/ckks/injectContext.js",
+            "ckks-square": "nodes/ckks/square.js",
+            "ckks-decrypt": "nodes/ckks/decrypt.js",
+            "ckks-multiPlain": "nodes/ckks/multiPlain.js"
         }
     },
     "dependencies": {

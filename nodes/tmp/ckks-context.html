@@ -1,0 +1,42 @@
+<script type="text/javascript">
+    RED.nodes.registerType('ckks-context', {
+        category: 'config',
+        defaults: {
+            name: { value: 'ckks-context', required: true },
+            polyModulus: { value: 8192, required: true, validate: RED.validators.number() },
+            coeffModulus: { value: '{"value": [60, 40, 40, 60]}', required: true },
+            scale: { value: 40, required: true, validate: RED.validators.number() },
+        },
+        label: function () {
+            return this.name;
+        },
+        oneditprepare: () =>
+            $('#node-config-input-coeffModulus').typedInput({
+                type: 'json',
+                types: ['json'],
+            }),
+    });
+</script>
+
+<script type="text/html" data-template-name="ckks-context">
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+        <input type="text" id="node-config-input-name" />
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-polyModulus"
+            ><i class="fa fa-bookmark"></i> PolyModulus</label
+        >
+        <input type="number" id="node-config-input-polyModulus" />
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-coeffModulus"
+            ><i class="fa fa-bookmark"></i> CoeffModulus</label
+        >
+        <input type="text" id="node-config-input-coeffModulus" />
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-scale"><i class="fa fa-bookmark"></i> Scale</label>
+        <input type="number" id="node-config-input-scale" />
+    </div>
+</script>
