@@ -2,10 +2,10 @@ module.exports = function (RED) {
     function ckksDecrypt(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const flowContext = node.context().flow;
+        // const flowContext = node.context().flow;
 
         node.on('input', function (msg) {
-            const SEALContexts = flowContext.get(msg.contextName);
+            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
             try {
                 if (!SEALContexts) {
                     throw new Error('SEALContexts not found');

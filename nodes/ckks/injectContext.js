@@ -2,7 +2,7 @@ module.exports = function (RED) {
     function injectContext(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const flowContext = this.context().flow;
+        // const flowContext = this.context().flow;
         node.SEALContexts = RED.nodes.getNode(config.context);
 
         if (node.SEALContexts) {
@@ -14,11 +14,27 @@ module.exports = function (RED) {
         node.on('input', function (msg) {
             try {
                 if (node.SEALContexts) {
-                    console.log('TEST');
                     const contextName = node.SEALContexts.name.trim().replace(' ', '-');
 
-                    flowContext.set(contextName, node.SEALContexts);
-                    msg.contextName = contextName;
+                    // const SEALContextsClone = {
+                    //     name: node.name,
+                    //     poluModulus: node.SEALContexts.polyModulus,
+                    //     coeffModulus: node.SEALContexts.coeffModulus,
+                    //     scale: node.SEALContexts.scale,
+                    //     secretKey: node.SEALContexts.secretKey,
+                    //     publicKey: node.SEALContexts.publicKey,
+                    //     relinKey: node.SEALContexts.relinKey,
+                    //     galoisKey: node.SEALContexts.galoisKey,
+                    //     encoder: node.SEALContexts.encoder,
+                    //     encryptor: node.SEALContexts.encryptor,
+                    //     decryptor: node.SEALContexts.decryptor,
+                    //     evaluator: node.SEALContexts.evaluator,
+                    //     context: node.SEALContexts.context,
+                    // };
+
+                    // flowContext.set(contextName, SEALContextsClone);
+
+                    msg.context = { name: contextName, node_id: config.context };
 
                     node.send(msg);
                 } else {

@@ -18,11 +18,17 @@
     "node-red": {
         "nodes": {
             "ckks-context": "nodes/ckks/context.js",
-            "ckks-input": "nodes/ckks/input.js",
             "ckks-injectContext": "nodes/ckks/injectContext.js",
-            "ckks-square": "nodes/ckks/square.js",
+            "ckks-input": "nodes/ckks/input.js",
             "ckks-decrypt": "nodes/ckks/decrypt.js",
-            "ckks-multiPlain": "nodes/ckks/multiPlain.js"
+            "ckks-add": "nodes/ckks/add.js",
+            "ckks-addPlain": "nodes/ckks/addPlain.js",
+            "ckks-sub": "nodes/ckks/sub.js",
+            "ckks-subPlain": "nodes/ckks/subPlain.js",
+            "ckks-square": "nodes/ckks/square.js",
+            "ckks-multi": "nodes/ckks/multi.js",
+            "ckks-multiPlain": "nodes/ckks/multiPlain.js",
+            "ckks-chainDown": "nodes/ckks/chainDown.js"
         }
     },
     "dependencies": {

@@ -49,8 +49,6 @@ module.exports = async function (RED) {
         this.decryptor = decryptor;
         this.evaluator = evaluator;
         this.context = context;
-
-        console.log('WTF IS THIS SHIT');
     }
     RED.nodes.registerType('ckks-context', CKKSContext);
 };

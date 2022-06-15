@@ -1,11 +1,10 @@
 module.exports = function (RED) {
     const { getChainIndex, getScale } = require('../util.js');
 
-    function ckksMultiPlain(config) {
+    function subPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const value = config.value;
-        const isRescale = config.rescale;
         // const flowContext = node.context().flow;
 
         if (!value) {
@@ -31,19 +30,11 @@ module.exports = function (RED) {
                     const context = SEALContexts.context;
                     const encoder = SEALContexts.encoder;
                     const evaluator = SEALContexts.evaluator;
-                    const scale = SEALContexts.scale;
-                    const relinKey = SEALContexts.relinKey;
 
                     const array = Float64Array.from({ length: encoder.slotCount }, () => value);
                     const plainText = encoder.encode(array, cipherText.scale);
                     evaluator.plainModSwitchTo(plainText, cipherText.parmsId, plainText);
-                    evaluator.multiplyPlain(cipherText, plainText, cipherText);
-                    evaluator.relinearize(cipherText, relinKey, cipherText);
-
-                    if (isRescale) {
-                        evaluator.rescaleToNext(cipherText, cipherText);
-                        cipherText.setScale(scale);
-                    }
+                    evaluator.subPlain(cipherText, plainText, cipherText);
 
                     const chainIndex = getChainIndex(cipherText, context);
                     const currentScale = getScale(cipherText);
@@ -64,5 +55,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-multiPlain', ckksMultiPlain);
+    RED.nodes.registerType('ckks-subPlain', subPlain);
 };

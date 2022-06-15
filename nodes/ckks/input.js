@@ -6,7 +6,7 @@ module.exports = function (RED) {
         const node = this;
         const topic = config.topic;
         const value = config.value;
-        const flowContext = node.context().flow;
+        // const flowContext = node.context().flow;
 
         if (!value) {
             const err = new Error('Varable Value field is empty');
@@ -23,7 +23,7 @@ module.exports = function (RED) {
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
-            const SEALContexts = flowContext.get(msg.contextName);
+            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
 
             try {
                 if (!SEALContexts) {

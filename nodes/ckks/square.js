@@ -5,12 +5,13 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         const node = this;
         const isRescale = config.rescale;
-        const flowContext = node.context().flow;
+        // const flowContext = node.context().flow;
 
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
-            const SEALContexts = flowContext.get(msg.contextName);
+            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
+            // const SEALContexts = flowContext.get(msg.contextName);
 
             try {
                 if (!SEALContexts) {
@@ -38,7 +39,7 @@ module.exports = function (RED) {
 
                     node.status({
                         fill: 'green',
-                        shape: 'dot',
+                        shape: 'ring',
                         text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
                     });
 

@@ -1,0 +1,48 @@
+<script>
+    RED.nodes.registerType('ckks-multi', {
+        category: 'SEAL_CKKS',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: '' },
+            xName: { value: '', require: true },
+            yName: { value: '', require: true },
+            resultName: { value: '' },
+            rescale: { value: true },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'file.png',
+        label: function () {
+            return this.name || 'ckks-multi';
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="ckks-multi">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+
+    <div class="form-row">
+        <h2>X * Y = Result</h2>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-xName"><i class="fa fa-tag"></i>X Varable Name: </label>
+        <input type="text" id="node-input-xName" placeholder="Ex: X, Y, temp" />
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-yName"><i class="fa fa-tag"></i>Y Varable Name: </label>
+        <input type="text" id="node-input-yName" placeholder="Ex: X, Y, temp" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-resultName"><i class="fa fa-tag"></i>Result Varable Name: </label>
+        <input type="text" id="node-input-resultName" placeholder="Ex: X, Y, temp" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-rescale"><i class="fa fa-pencil"></i>Rescale </label>
+        <input type="checkbox" id="node-input-rescale" checked />
+    </div>
+</script>
