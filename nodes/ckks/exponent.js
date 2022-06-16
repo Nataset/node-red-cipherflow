@@ -1,10 +1,11 @@
 module.exports = function (RED) {
     const { getChainIndex, getScale } = require('../util.js');
 
-    function ckksSquare(config) {
+    function exponent(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const isRescale = config.rescale;
+        const n = config.n;
         // const flowContext = node.context().flow;
 
         node.status({ fill: 'grey', shape: 'ring' });
@@ -25,17 +26,20 @@ module.exports = function (RED) {
                     const scale = SEALContexts.scale;
 
                     const cipherText = msg.payload.cipherText.clone();
+                    const resultCipher = msg.payload.cipherText.clone();
 
-                    evaluator.square(cipherText, cipherText);
-                    evaluator.relinearize(cipherText, relinKey, cipherText);
-
-                    if (isRescale) {
-                        evaluator.rescaleToNext(cipherText, cipherText);
-                        cipherText.setScale(scale);
+                    for (let i = 1; i < n; i++) {
+                        evaluator.multiply(resultCipher, cipherText, resultCipher);
+                        evaluator.relinearize(resultCipher, relinKey, resultCipher);
+                        if (isRescale) {
+                            evaluator.cipherModSwitchToNext(cipherText, cipherText);
+                            evaluator.rescaleToNext(resultCipher, resultCipher);
+                            resultCipher.setScale(scale);
+                        }
                     }
 
-                    const chainIndex = getChainIndex(cipherText, context);
-                    const currentScale = getScale(cipherText);
+                    const chainIndex = getChainIndex(resultCipher, context);
+                    const currentScale = getScale(resultCipher);
 
                     node.status({
                         fill: 'green',
@@ -43,7 +47,7 @@ module.exports = function (RED) {
                         text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
                     });
 
-                    msg.payload = { cipherText: cipherText };
+                    msg.payload = { cipherText: resultCipher };
                     node.send(msg);
                 }
             } catch (err) {
@@ -53,5 +57,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('square', ckksSquare);
+    RED.nodes.registerType('exponent', exponent);
 };

@@ -9,9 +9,11 @@ module.exports = function (RED) {
         const resultName = config.resultName;
         // const flowContext = node.context().flow;
         const nodeContext = node.context();
+        nodeContext.set('xCipher', '');
+        nodeContext.set('yCipher', '');
 
         if (!xName || !yName) {
-            const err = new Error(`Did't specific variables name`);
+            const err = new Error(`did't specific variables name`);
             node.error(err);
             node.status({ fill: 'red', shape: 'dot', text: err.toString() });
             return;
@@ -23,7 +25,7 @@ module.exports = function (RED) {
             const SEALContexts = RED.nodes.getNode(msg.context.node_id);
 
             if (msg.topic == xName) {
-                const xCipher = msg.payload.cipherText;
+                const xCipher = msg.payload.cipherText.clone();
                 nodeContext.set('xCipher', xCipher);
                 node.status({
                     fill: 'yellow',
@@ -31,7 +33,7 @@ module.exports = function (RED) {
                     text: 'wait for another ciphertext',
                 });
             } else if (msg.topic == yName) {
-                const yCipher = msg.payload.cipherText;
+                const yCipher = msg.payload.cipherText.clone();
                 nodeContext.set('yCipher', yCipher);
                 node.status({
                     fill: 'yellow',
@@ -42,38 +44,47 @@ module.exports = function (RED) {
 
             const xCipher = nodeContext.get('xCipher');
             const yCipher = nodeContext.get('yCipher');
-            try {
-                if (!SEALContexts) {
-                    throw new Error('SEALContext not found');
-                } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
-                } else if (xCipher && yCipher) {
-                    const context = SEALContexts.context;
-                    const evaluator = SEALContexts.evaluator;
 
-                    const resultCipher = evaluator.add(xCipher, yCipher);
+            if (xCipher && yCipher) {
+                try {
+                    if (!SEALContexts) {
+                        throw new Error('SEALContext not found');
+                    } else if (!msg.payload.cipherText) {
+                        throw new Error('cipherText not found');
+                    } else {
+                        const context = SEALContexts.context;
+                        const evaluator = SEALContexts.evaluator;
 
-                    const chainIndex = getChainIndex(resultCipher, context);
-                    const currentScale = getScale(resultCipher);
+                        const resultCipher = evaluator.add(xCipher, yCipher);
 
-                    node.status({
-                        fill: 'green',
-                        shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
-                    });
+                        const chainIndex = getChainIndex(resultCipher, context);
+                        const currentScale = getScale(resultCipher);
 
-                    msg.topic = resultName ? resultName : xName;
-                    msg.payload = { cipherText: resultCipher };
-                    node.send(msg);
-                    nodeContext.set('xCipher', '');
-                    nodeContext.set('yCipher', '');
+                        node.status({
+                            fill: 'green',
+                            shape: 'ring',
+                            text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
+                        });
+
+                        msg.topic = resultName ? resultName : xName;
+                        msg.payload = { cipherText: resultCipher };
+                        node.send(msg);
+
+                        nodeContext.set('xCipher', '');
+                        nodeContext.set('yCipher', '');
+                    }
+                } catch (err) {
+                    node.error(err);
+                    node.status({ fill: 'red', shape: 'dot', text: err.toString() });
                 }
-            } catch (err) {
-                node.error(err);
-                node.status({ fill: 'red', shape: 'dot', text: err.toString() });
             }
+        });
+
+        node.on('close', function () {
+            nodeContext.set('xCipher', '');
+            nodeContext.set('yCipher', '');
         });
     }
 
-    RED.nodes.registerType('ckks-add', add);
+    RED.nodes.registerType('add(E)', add);
 };

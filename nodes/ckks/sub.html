@@ -1,9 +1,9 @@
 <script>
-    RED.nodes.registerType('ckks-sub', {
+    RED.nodes.registerType('sub(E)', {
         category: 'SEAL_CKKS',
-        color: '#a6bbcf',
+        color: '#80A2C0',
         defaults: {
-            name: { value: '' },
+            name: { value: 'sub(E)' },
             xName: { value: '', require: true },
             yName: { value: '', require: true },
             resultName: { value: '' },
@@ -12,12 +12,12 @@
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'ckks-sub';
+            return this.name || 'sub(E)';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="ckks-sub">
+<script type="text/html" data-template-name="sub(E)">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />

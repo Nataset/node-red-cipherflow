@@ -1,27 +1,28 @@
 <script>
-    RED.nodes.registerType('square', {
+    RED.nodes.registerType('clone', {
         category: 'SEAL_CKKS',
         color: '#a6bbcf',
         defaults: {
-            name: { value: 'square' },
-            rescale: { value: true },
+            name: { value: 'clone' },
+            topic: { value: '', require: true },
         },
         inputs: 1,
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'square';
+            return this.name || 'clone';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="square">
+<script type="text/html" data-template-name="clone">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
+
     <div class="form-row">
-        <label for="node-input-rescale"><i class="fa fa-pencil"></i>Rescale </label>
-        <input type="checkbox" id="node-input-rescale" checked />
+        <label for="node-input-topic"><i class="fa fa-tag"></i>Cloned Variable Name</label>
+        <input type="text" id="node-input-topic" placeholder="Ex: X, Y, temp" />
     </div>
 </script>

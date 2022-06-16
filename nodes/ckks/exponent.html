@@ -1,24 +1,29 @@
 <script>
-    RED.nodes.registerType('square', {
+    RED.nodes.registerType('exponent', {
         category: 'SEAL_CKKS',
         color: '#a6bbcf',
         defaults: {
-            name: { value: 'square' },
+            name: { value: 'exponent' },
             rescale: { value: true },
+            n: { value: 2, require: true },
         },
         inputs: 1,
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'square';
+            return this.name || 'exponent';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="square">
+<script type="text/html" data-template-name="exponent">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i>Exponent Value</label>
+        <input type="number" id="node-input-n" placeholder="Name" />
     </div>
     <div class="form-row">
         <label for="node-input-rescale"><i class="fa fa-pencil"></i>Rescale </label>

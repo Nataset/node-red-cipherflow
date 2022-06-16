@@ -1,20 +1,20 @@
 <script>
-    RED.nodes.registerType('ckks-decrypt', {
+    RED.nodes.registerType('decrypt', {
         category: 'SEAL_CKKS',
-        color: '#a6bbcf',
+        color: '#E1D96E',
         defaults: {
-            name: { value: '' },
+            name: { value: 'decrypt' },
         },
         inputs: 1,
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'ckks-decrypt';
+            return this.name || 'decrypt';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="ckks-decrypt">
+<script type="text/html" data-template-name="decrypt">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />

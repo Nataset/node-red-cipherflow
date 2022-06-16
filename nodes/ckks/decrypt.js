@@ -10,14 +10,20 @@ module.exports = function (RED) {
                 if (!SEALContexts) {
                     throw new Error('SEALContexts not found');
                 } else if (!SEALContexts.decryptor) {
-                    throw new Error('Decryptor not found');
+                    throw new Error('decryptor not found');
                 } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
+                    throw new Error('cipherText not found');
                 } else {
-                    const cipherText = msg.payload.cipherText;
+                    const context = SEALContexts.context;
+                    const cipherText = msg.payload.cipherText.clone();
+                    const cipherTextBase64 = cipherText.save();
+                    const newCipherText = SEALContexts.seal.CipherText();
+
+                    newCipherText.load(context, cipherTextBase64);
+
                     const encoder = SEALContexts.encoder;
                     const decryptor = SEALContexts.decryptor;
-                    const plainText = decryptor.decrypt(cipherText);
+                    const plainText = decryptor.decrypt(newCipherText);
                     const result = encoder.decode(plainText);
 
                     msg.payload = result.slice(0, 10);
@@ -30,5 +36,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-decrypt', ckksDecrypt);
+    RED.nodes.registerType('decrypt', ckksDecrypt);
 };

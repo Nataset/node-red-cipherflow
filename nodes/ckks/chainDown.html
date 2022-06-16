@@ -1,28 +1,28 @@
 <script>
-    RED.nodes.registerType('ckks-chainDown', {
+    RED.nodes.registerType('chain down', {
         category: 'SEAL_CKKS',
         color: '#a6bbcf',
         defaults: {
-            name: { value: '' },
-            n: { value: '1', require: true },
+            name: { value: 'chain down' },
+            n: { value: 1, require: true },
         },
         inputs: 1,
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'ckks-chainDown';
+            return this.name || 'chain down';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="ckks-chainDown">
+<script type="text/html" data-template-name="chain down">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
 
     <div class="form-row">
-        <label for="node-input-context"><i class="fa fa-tag"></i> context</label>
+        <label for="node-input-context"><i class="fa fa-tag"></i>How many time</label>
         <input type="number" id="node-input-n" placeholder="Ex: 1,2,3" />
     </div>
 </script>

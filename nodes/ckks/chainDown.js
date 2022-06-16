@@ -15,7 +15,7 @@ module.exports = function (RED) {
                 } else if (!msg.payload.cipherText) {
                     throw new Error(`CipherText not found`);
                 }
-                const cipherText = msg.payload.cipherText;
+                const cipherText = msg.payload.cipherText.clone();
                 const evaluator = SEALContexts.evaluator;
                 const context = SEALContexts.context;
 
@@ -41,5 +41,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-chainDown', chainDown);
+    RED.nodes.registerType('chain down', chainDown);
 };

@@ -18,17 +18,19 @@
     "node-red": {
         "nodes": {
             "ckks-context": "nodes/ckks/context.js",
-            "ckks-injectContext": "nodes/ckks/injectContext.js",
-            "ckks-input": "nodes/ckks/input.js",
-            "ckks-decrypt": "nodes/ckks/decrypt.js",
-            "ckks-add": "nodes/ckks/add.js",
-            "ckks-addPlain": "nodes/ckks/addPlain.js",
-            "ckks-sub": "nodes/ckks/sub.js",
-            "ckks-subPlain": "nodes/ckks/subPlain.js",
-            "ckks-square": "nodes/ckks/square.js",
-            "ckks-multi": "nodes/ckks/multi.js",
-            "ckks-multiPlain": "nodes/ckks/multiPlain.js",
-            "ckks-chainDown": "nodes/ckks/chainDown.js"
+            "start": "nodes/ckks/injectContext.js",
+            "input": "nodes/ckks/input.js",
+            "decrypt": "nodes/ckks/decrypt.js",
+            "add(E)": "nodes/ckks/add.js",
+            "add(P)": "nodes/ckks/addPlain.js",
+            "sub(E)": "nodes/ckks/sub.js",
+            "sub(P)": "nodes/ckks/subPlain.js",
+            "square": "nodes/ckks/square.js",
+            "multi(E)": "nodes/ckks/multi.js",
+            "multi(P)": "nodes/ckks/multiPlain.js",
+            "chain down": "nodes/ckks/chainDown.js",
+            "clone": "nodes/ckks/clone.js",
+            "exponent": "nodes/ckks/exponent.js"
         }
     },
     "dependencies": {

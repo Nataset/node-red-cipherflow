@@ -1,5 +1,5 @@
 module.exports = function (RED) {
-    const { getChainIndex, getScale } = require('../util.js');
+    const { getChainIndex, getScale, logParameters } = require('../util.js');
 
     function multi(config) {
         RED.nodes.createNode(this, config);
@@ -24,7 +24,7 @@ module.exports = function (RED) {
             const SEALContexts = RED.nodes.getNode(msg.context.node_id);
 
             if (msg.topic == xName) {
-                const xCipher = msg.payload.cipherText;
+                const xCipher = msg.payload.cipherText.clone();
                 nodeContext.set('xCipher', xCipher);
                 node.status({
                     fill: 'yellow',
@@ -47,13 +47,12 @@ module.exports = function (RED) {
                 if (!SEALContexts) {
                     throw new Error('SEALContext not found');
                 } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
+                    throw new Error('cipherText not found');
                 } else if (xCipher && yCipher) {
                     const context = SEALContexts.context;
                     const evaluator = SEALContexts.evaluator;
                     const scale = SEALContexts.scale;
                     const relinKey = SEALContexts.relinKey;
-
                     const resultCipher = evaluator.multiply(xCipher, yCipher);
                     evaluator.relinearize(resultCipher, relinKey, resultCipher);
 
@@ -84,5 +83,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-multi', multi);
+    RED.nodes.registerType('multi(E)', multi);
 };

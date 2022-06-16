@@ -23,9 +23,9 @@ module.exports = function (RED) {
                 if (!SEALContexts) {
                     throw new Error('SEALContext not found');
                 } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
+                    throw new Error('cipherText not found');
                 } else {
-                    const cipherText = msg.payload.cipherText;
+                    const cipherText = msg.payload.cipherText.clone();
 
                     const context = SEALContexts.context;
                     const encoder = SEALContexts.encoder;
@@ -55,5 +55,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-subPlain', subPlain);
+    RED.nodes.registerType('sub(P)', subPlain);
 };

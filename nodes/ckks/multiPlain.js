@@ -1,7 +1,7 @@
 module.exports = function (RED) {
     const { getChainIndex, getScale } = require('../util.js');
 
-    function ckksMultiPlain(config) {
+    function multiPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const value = config.value;
@@ -24,9 +24,9 @@ module.exports = function (RED) {
                 if (!SEALContexts) {
                     throw new Error('SEALContext not found');
                 } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
+                    throw new Error('cipherText not found');
                 } else {
-                    const cipherText = msg.payload.cipherText;
+                    const cipherText = msg.payload.cipherText.clone();
 
                     const context = SEALContexts.context;
                     const encoder = SEALContexts.encoder;
@@ -64,5 +64,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-multiPlain', ckksMultiPlain);
+    RED.nodes.registerType('multi(P)', multiPlain);
 };

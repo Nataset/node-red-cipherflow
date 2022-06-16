@@ -1,9 +1,9 @@
 <script>
-    RED.nodes.registerType('ckks-input', {
+    RED.nodes.registerType('input', {
         category: 'SEAL_CKKS',
-        color: '#a6bbcf',
+        color: '#E1D96E',
         defaults: {
-            name: { value: 'ckks-input' },
+            name: { value: 'input' },
             topic: { value: '', require: true },
             value: { value: '', require: true },
         },
@@ -11,12 +11,12 @@
         outputs: 1,
         icon: 'file.png',
         label: function () {
-            return this.name || 'ckks-input';
+            return this.name || 'input';
         },
     });
 </script>
 
-<script type="text/html" data-template-name="ckks-input">
+<script type="text/html" data-template-name="input">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />

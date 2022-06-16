@@ -11,7 +11,7 @@ module.exports = function (RED) {
         const nodeContext = node.context();
 
         if (!xName || !yName) {
-            const err = new Error(`Did't specific variables name`);
+            const err = new Error(`did't specific variables name`);
             node.error(err);
             node.status({ fill: 'red', shape: 'dot', text: err.toString() });
             return;
@@ -23,7 +23,7 @@ module.exports = function (RED) {
             const SEALContexts = RED.nodes.getNode(msg.context.node_id);
 
             if (msg.topic == xName) {
-                const xCipher = msg.payload.cipherText;
+                const xCipher = msg.payload.cipherText.clone();
                 nodeContext.set('xCipher', xCipher);
                 node.status({
                     fill: 'yellow',
@@ -31,7 +31,7 @@ module.exports = function (RED) {
                     text: 'wait for another ciphertext',
                 });
             } else if (msg.topic == yName) {
-                const yCipher = msg.payload.cipherText;
+                const yCipher = msg.payload.cipherText.clone();
                 nodeContext.set('yCipher', yCipher);
                 node.status({
                     fill: 'yellow',
@@ -46,7 +46,7 @@ module.exports = function (RED) {
                 if (!SEALContexts) {
                     throw new Error('SEALContext not found');
                 } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
+                    throw new Error('cipherText not found');
                 } else if (xCipher && yCipher) {
                     const context = SEALContexts.context;
                     const evaluator = SEALContexts.evaluator;
@@ -75,5 +75,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-sub', sub);
+    RED.nodes.registerType('sub(E)', sub);
 };

@@ -46,7 +46,7 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('ckks-injectContext', injectContext);
+    RED.nodes.registerType('start', injectContext);
 
     RED.httpAdmin.post(
         '/inject/:id',
