@@ -5,7 +5,7 @@ module.exports = function (RED) {
         // const flowContext = node.context().flow;
 
         node.on('input', function (msg) {
-            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
+            const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
             try {
                 if (!SEALContexts) {
                     throw new Error('SEALContexts not found');

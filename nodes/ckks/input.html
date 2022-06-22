@@ -4,7 +4,6 @@
         color: '#E1D96E',
         defaults: {
             name: { value: 'input' },
-            topic: { value: '', require: true },
             value: { value: '', require: true },
         },
         inputs: 1,
@@ -21,12 +20,6 @@
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
     </div>
-
-    <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tag"></i>Variable Name</label>
-        <input type="text" id="node-input-topic" placeholder="Ex: X, Y, temp" />
-    </div>
-
     <div class="form-row">
         <label for="node-input-value"><i class="fa fa-tag"></i>Variable Value</label>
         <input type="number" id="node-input-value" placeholder="Ex: 10, 0.5, -1" />

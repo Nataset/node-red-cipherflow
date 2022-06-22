@@ -1,14 +1,14 @@
 module.exports = function (RED) {
     const { getChainIndex, getScale } = require('../util.js');
-    function chainDown(config) {
+    function negate(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const n = config.n;
 
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
             const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
+
             try {
                 if (!SEALContexts) {
                     throw new Error(`SEAL Contexts not found`);
@@ -19,9 +19,7 @@ module.exports = function (RED) {
                 const evaluator = SEALContexts.evaluator;
                 const context = SEALContexts.context;
 
-                for (let i = 0; i < n; i++) {
-                    evaluator.cipherModSwitchToNext(cipherText, cipherText);
-                }
+                evaluator.negate(cipherText, cipherText);
 
                 const chainIndex = getChainIndex(cipherText, context);
                 const currentScale = getScale(cipherText);
@@ -41,5 +39,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('chain down', chainDown);
+    RED.nodes.registerType('negate', negate);
 };

@@ -4,56 +4,63 @@ module.exports = function (RED) {
     function multi(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const xName = config.xName;
-        const yName = config.yName;
-        const resultName = config.resultName;
         const isRescale = config.rescale;
-        // const flowContext = node.context().flow;
         const nodeContext = node.context();
-
-        if (!xName || !yName) {
-            const err = new Error(`Did't specific variables name`);
-            node.error(err);
-            node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-            return;
-        }
+        nodeContext.set('firstQueue', []);
+        nodeContext.set('secondQueue', []);
+        nodeContext.set('firstNodeId', null);
+        nodeContext.set('secondNodeId', null);
 
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
-            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
+            const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
 
-            if (msg.topic == xName) {
-                const xCipher = msg.payload.cipherText.clone();
-                nodeContext.set('xCipher', xCipher);
-                node.status({
-                    fill: 'yellow',
-                    shape: 'ring',
-                    text: 'wait for another ciphertext',
-                });
-            } else if (msg.topic == yName) {
-                const yCipher = msg.payload.cipherText;
-                nodeContext.set('yCipher', yCipher);
-                node.status({
-                    fill: 'yellow',
-                    shape: 'ring',
-                    text: 'wait for another ciphertext',
-                });
-            }
-
-            const xCipher = nodeContext.get('xCipher');
-            const yCipher = nodeContext.get('yCipher');
             try {
                 if (!SEALContexts) {
                     throw new Error('SEALContext not found');
                 } else if (!msg.payload.cipherText) {
                     throw new Error('cipherText not found');
-                } else if (xCipher && yCipher) {
+                }
+
+                const firstQueue = nodeContext.get('firstQueue');
+                const secondQueue = nodeContext.get('secondQueue');
+                let firstNodeId = nodeContext.get('firstNodeId');
+                let secondNodeId = nodeContext.get('secondNodeId');
+
+                if (firstNodeId == null || msg.inputNodeId == firstNodeId) {
+                    const firstCipher = msg.payload.cipherText.clone();
+                    firstNodeId = msg.inputNodeId;
+                    nodeContext.set('firstNodeId', firstNodeId);
+                    firstQueue.push(firstCipher);
+                    node.status({
+                        fill: 'yellow',
+                        shape: 'ring',
+                        text: 'wait for another ciphertext',
+                    });
+                } else if (secondNodeId == null || msg.inputNodeId == secondNodeId) {
+                    const secondCipher = msg.payload.cipherText.clone();
+                    secondNodeId = msg.inputNodeId;
+                    nodeContext.set('secondNodeId', secondNodeId);
+                    secondQueue.push(secondCipher);
+                    node.status({
+                        fill: 'yellow',
+                        shape: 'ring',
+                        text: 'wait for another ciphertext',
+                    });
+                } else {
+                    throw new Error('input more than 2 ciphertext');
+                }
+
+                if (firstQueue.length > 0 && secondQueue.length > 0) {
+                    const firstCipher = firstQueue.shift().clone();
+                    const secondCipher = secondQueue.shift().clone();
                     const context = SEALContexts.context;
                     const evaluator = SEALContexts.evaluator;
-                    const scale = SEALContexts.scale;
                     const relinKey = SEALContexts.relinKey;
-                    const resultCipher = evaluator.multiply(xCipher, yCipher);
+                    const scale = SEALContexts.scale;
+
+                    const resultCipher = evaluator.multiply(firstCipher, secondCipher);
                     evaluator.relinearize(resultCipher, relinKey, resultCipher);
 
                     if (isRescale) {
@@ -70,16 +77,22 @@ module.exports = function (RED) {
                         text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
                     });
 
-                    msg.topic = resultName ? resultName : xName;
+                    msg.inputNodeId = config.id;
                     msg.payload = { cipherText: resultCipher };
                     node.send(msg);
-                    nodeContext.set('xCipher', '');
-                    nodeContext.set('yCipher', '');
                 }
             } catch (err) {
                 node.error(err);
                 node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+                return;
             }
+        });
+
+        node.on('close', function () {
+            nodeContext.set('firstQueue', []);
+            nodeContext.set('secondQueue', []);
+            nodeContext.set('firstNodeId', null);
+            nodeContext.set('secondNodeId', null);
         });
     }
 

@@ -34,7 +34,7 @@ module.exports = function (RED) {
 
                     // flowContext.set(contextName, SEALContextsClone);
 
-                    msg.context = { name: contextName, node_id: config.context };
+                    msg.context = { name: contextName, nodeId: config.context };
 
                     node.send(msg);
                 } else {

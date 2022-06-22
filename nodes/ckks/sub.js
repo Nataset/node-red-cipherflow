@@ -20,7 +20,7 @@ module.exports = function (RED) {
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
-            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
+            const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
 
             if (msg.topic == xName) {
                 const xCipher = msg.payload.cipherText.clone();

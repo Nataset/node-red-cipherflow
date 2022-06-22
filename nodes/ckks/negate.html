@@ -1,20 +1,17 @@
 <script>
-    RED.nodes.registerType('add(E)', {
+    RED.nodes.registerType('negate', {
         category: 'SEAL_CKKS',
-        color: '#80A2C0',
+        color: '#a6bbcf',
         defaults: {
-            name: { value: 'add(E)' },
+            name: { value: 'negate' },
         },
         inputs: 1,
         outputs: 1,
         icon: 'file.png',
-        label: function () {
-            return this.name || 'add(E)';
-        },
     });
 </script>
 
-<script type="text/html" data-template-name="add(E)">
+<script type="text/html" data-template-name="negate">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />

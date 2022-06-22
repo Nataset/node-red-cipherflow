@@ -4,7 +4,6 @@ module.exports = function (RED) {
     function CKKSInput(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const topic = config.topic;
         const value = config.value;
         // const flowContext = node.context().flow;
 
@@ -13,17 +12,12 @@ module.exports = function (RED) {
             node.error(err);
             node.status({ fill: 'red', shape: 'dot', text: err.toString() });
             return;
-        } else if (!topic) {
-            const err = new Error('variable Name field is empty');
-            node.error(err);
-            node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-            return;
         }
 
         node.status({ fill: 'grey', shape: 'ring' });
 
         node.on('input', function (msg) {
-            const SEALContexts = RED.nodes.getNode(msg.context.node_id);
+            const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
 
             try {
                 if (!SEALContexts) {
@@ -41,7 +35,7 @@ module.exports = function (RED) {
                     const chainIndex = getChainIndex(cipherText, context);
                     const currentScale = getScale(cipherText);
 
-                    msg.topic = topic;
+                    msg.inputNodeId = config.id;
                     msg.payload = { cipherText: cipherText };
 
                     node.status({
