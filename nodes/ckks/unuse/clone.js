@@ -4,15 +4,15 @@ module.exports = function (RED) {
     function clone(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const topic = config.topic;
+        // const topic = config.topic;
         // const flowContext = node.context().flow;
 
-        if (!topic) {
-            const err = new Error('cloned variable name field is empty');
-            node.error(err);
-            node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-            return;
-        }
+        // if (!topic) {
+        //     const err = new Error('cloned variable name field is empty');
+        //     node.error(err);
+        //     node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+        //     return;
+        // }
 
         node.status({ fill: 'grey', shape: 'ring' });
 
@@ -36,8 +36,8 @@ module.exports = function (RED) {
                             `cloned variable can't have same name As an origin variable`,
                         );
                     }
-                    msg.topic = topic;
-                    msg.payload = { cipherText: cipherTextClone };
+                    msg.latestNodeId = config.id;
+                    msg.payload = { cipherText: cipherText.clone() };
 
                     node.status({
                         fill: 'green',

@@ -25,9 +25,9 @@
             "add(P)": "nodes/ckks/addPlain.js",
             "multi(E)": "nodes/ckks/multi.js",
             "multi(P)": "nodes/ckks/multiPlain.js",
-            "chain down": "nodes/ckks/chainDown.js",
             "exponent": "nodes/ckks/exponent.js",
-            "negate": "nodes/ckks/negate.js"
+            "negate": "nodes/ckks/negate.js",
+            "clone": "nodes/ckks/clone.js"
         }
     },
     "dependencies": {

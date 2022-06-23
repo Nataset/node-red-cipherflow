@@ -46,14 +46,14 @@ module.exports = function (RED) {
                     }
 
                     const chainIndex = getChainIndex(cipherText, context);
-                    const currentScale = getScale(cipherText);
 
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
+                        text: `ChainIndex: ${chainIndex}`,
                     });
 
+                    msg.latestNodeId = config.id;
                     msg.payload = { cipherText: cipherText };
                     node.send(msg);
                 }

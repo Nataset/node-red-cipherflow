@@ -32,6 +32,7 @@ module.exports = function (RED) {
                     text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
                 });
 
+                msg.latestNodeId = config.id;
                 msg.payload = { cipherText: cipherText };
                 node.send(msg);
             } catch (err) {

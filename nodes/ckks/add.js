@@ -28,9 +28,9 @@ module.exports = function (RED) {
                 let firstNodeId = nodeContext.get('firstNodeId');
                 let secondNodeId = nodeContext.get('secondNodeId');
 
-                if (firstNodeId == null || msg.inputNodeId == firstNodeId) {
+                if (firstNodeId == null || msg.latestNodeId == firstNodeId) {
                     const firstCipher = msg.payload.cipherText.clone();
-                    firstNodeId = msg.inputNodeId;
+                    firstNodeId = msg.latestNodeId;
                     nodeContext.set('firstNodeId', firstNodeId);
                     firstQueue.push(firstCipher);
                     node.status({
@@ -38,9 +38,9 @@ module.exports = function (RED) {
                         shape: 'ring',
                         text: 'wait for another ciphertext',
                     });
-                } else if (secondNodeId == null || msg.inputNodeId == secondNodeId) {
+                } else if (secondNodeId == null || msg.latestNodeId == secondNodeId) {
                     const secondCipher = msg.payload.cipherText.clone();
-                    secondNodeId = msg.inputNodeId;
+                    secondNodeId = msg.latestNodeId;
                     nodeContext.set('secondNodeId', secondNodeId);
                     secondQueue.push(secondCipher);
                     node.status({
@@ -58,18 +58,31 @@ module.exports = function (RED) {
                     const context = SEALContexts.context;
                     const evaluator = SEALContexts.evaluator;
 
-                    const resultCipher = evaluator.add(firstCipher, secondCipher);
+                    // equal fisrtCipher chainIndex to secondCipher chainIndex
+                    const firstChainIndex = getChainIndex(firstCipher, context);
+                    const secondChainIndex = getChainIndex(secondCipher, context);
+                    firstChainIndex - secondChainIndex > 0
+                        ? evaluator.cipherModSwitchTo(
+                              firstCipher,
+                              secondCipher.parmsId,
+                              firstCipher,
+                          )
+                        : evaluator.cipherModSwitchTo(
+                              secondCipher,
+                              firstCipher.parmsId,
+                              secondCipher,
+                          );
 
+                    const resultCipher = evaluator.add(firstCipher, secondCipher);
                     const chainIndex = getChainIndex(resultCipher, context);
-                    const currentScale = getScale(resultCipher);
 
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
+                        text: `ChainIndex: ${chainIndex}`,
                     });
 
-                    msg.inputNodeId = config.id;
+                    msg.latestNodeId = config.id;
                     msg.payload = { cipherText: resultCipher };
                     node.send(msg);
                 }

@@ -33,15 +33,15 @@ module.exports = function (RED) {
                     const cipherText = encryptor.encrypt(plainText);
 
                     const chainIndex = getChainIndex(cipherText, context);
-                    const currentScale = getScale(cipherText);
 
                     msg.inputNodeId = config.id;
+                    msg.latestNodeId = config.id;
                     msg.payload = { cipherText: cipherText };
 
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
+                        text: `ChainIndex: ${chainIndex}`,
                     });
 
                     node.send(msg);

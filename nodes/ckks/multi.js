@@ -1,6 +1,6 @@
-module.exports = function (RED) {
-    const { getChainIndex, getScale, logParameters } = require('../util.js');
+const { getChainIndex, getScale, logParameters } = require('../util.js');
 
+module.exports = function (RED) {
     function multi(config) {
         RED.nodes.createNode(this, config);
         const node = this;
@@ -28,9 +28,9 @@ module.exports = function (RED) {
                 let firstNodeId = nodeContext.get('firstNodeId');
                 let secondNodeId = nodeContext.get('secondNodeId');
 
-                if (firstNodeId == null || msg.inputNodeId == firstNodeId) {
+                if (firstNodeId == null || msg.latestNodeId == firstNodeId) {
                     const firstCipher = msg.payload.cipherText.clone();
-                    firstNodeId = msg.inputNodeId;
+                    firstNodeId = msg.latestNodeId;
                     nodeContext.set('firstNodeId', firstNodeId);
                     firstQueue.push(firstCipher);
                     node.status({
@@ -38,9 +38,9 @@ module.exports = function (RED) {
                         shape: 'ring',
                         text: 'wait for another ciphertext',
                     });
-                } else if (secondNodeId == null || msg.inputNodeId == secondNodeId) {
+                } else if (secondNodeId == null || msg.latestNodeId == secondNodeId) {
                     const secondCipher = msg.payload.cipherText.clone();
-                    secondNodeId = msg.inputNodeId;
+                    secondNodeId = msg.latestNodeId;
                     nodeContext.set('secondNodeId', secondNodeId);
                     secondQueue.push(secondCipher);
                     node.status({
@@ -53,31 +53,49 @@ module.exports = function (RED) {
                 }
 
                 if (firstQueue.length > 0 && secondQueue.length > 0) {
-                    const firstCipher = firstQueue.shift().clone();
-                    const secondCipher = secondQueue.shift().clone();
+                    // get firstCipher, secondCipher from Queue
+                    const firstCipher = firstQueue.shift();
+                    const secondCipher = secondQueue.shift();
                     const context = SEALContexts.context;
                     const evaluator = SEALContexts.evaluator;
                     const relinKey = SEALContexts.relinKey;
                     const scale = SEALContexts.scale;
 
+                    // equal fisrtCipher chainIndex to secondCipher chainIndex
+                    const firstChainIndex = getChainIndex(firstCipher, context);
+                    const secondChainIndex = getChainIndex(secondCipher, context);
+                    firstChainIndex - secondChainIndex > 0
+                        ? evaluator.cipherModSwitchTo(
+                              firstCipher,
+                              secondCipher.parmsId,
+                              firstCipher,
+                          )
+                        : evaluator.cipherModSwitchTo(
+                              secondCipher,
+                              firstCipher.parmsId,
+                              secondCipher,
+                          );
+
+                    // multiply firstCipher and secondCipher
                     const resultCipher = evaluator.multiply(firstCipher, secondCipher);
                     evaluator.relinearize(resultCipher, relinKey, resultCipher);
 
+                    // rescale the result cipher
                     if (isRescale) {
                         evaluator.rescaleToNext(resultCipher, resultCipher);
                         resultCipher.setScale(scale);
                     }
 
+                    // getChainIndex for the resultCipher and show it to the node status(text below node in node-red)
                     const chainIndex = getChainIndex(resultCipher, context);
-                    const currentScale = getScale(resultCipher);
-
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}, Scale: ${currentScale}`,
+                        text: `ChainIndex: ${chainIndex}`,
                     });
 
-                    msg.inputNodeId = config.id;
+                    //sent output msg
+                    msg.latestNodeId = config.id;
                     msg.payload = { cipherText: resultCipher };
                     node.send(msg);
                 }
