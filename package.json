@@ -1,6 +1,6 @@
 {
     "name": "node-red-cipherflow",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "microsoft seal for Node-RED.",
     "main": "nodes/ckks/ckks-encrypt.js",
     "keywords": [
@@ -27,7 +27,8 @@
             "multi(P)": "nodes/ckks/multiPlain.js",
             "exponent": "nodes/ckks/exponent.js",
             "negate": "nodes/ckks/negate.js",
-            "clone": "nodes/ckks/clone.js"
+            "clone": "nodes/ckks/clone.js",
+            "inverse": "nodes/ckks/inverse.js"
         }
     },
     "dependencies": {
