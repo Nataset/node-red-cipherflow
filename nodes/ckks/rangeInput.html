@@ -1,0 +1,32 @@
+<script>
+    RED.nodes.registerType('rangeInput', {
+        category: 'SEAL_CKKS',
+        color: '#E1D96E',
+        defaults: {
+            name: { value: 'rangeInput' },
+            start: { value: 0, require: true },
+            end: { value: 1000, require: true },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'file.png',
+        label: function () {
+            return this.name || 'rangeInput';
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="rangeInput">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-start"><i class="fa fa-tag"></i>start</label>
+        <input type="number" id="node-input-start" placeholder="Ex: 10, 0.5, -1" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-end"><i class="fa fa-tag"></i>end</label>
+        <input type="number" id="node-input-end" placeholder="Ex: 10, 0.5, -1" />
+    </div>
+</script>

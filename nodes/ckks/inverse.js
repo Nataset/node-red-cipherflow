@@ -1,5 +1,6 @@
 module.exports = function (RED) {
-    const { getChainIndex, getScale } = require('../util.js');
+    const { getChainIndex } = require('../../util/getDetail.js');
+
     function inverse(config) {
         RED.nodes.createNode(this, config);
         const node = this;

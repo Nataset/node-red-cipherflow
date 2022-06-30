@@ -1,6 +1,6 @@
-const { getChainIndex, getScale, logParameters } = require('../util.js');
-
 module.exports = function (RED) {
+    const { getChainIndex } = require('../../util/getDetail.js');
+
     function multi(config) {
         RED.nodes.createNode(this, config);
         const node = this;

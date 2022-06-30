@@ -1,6 +1,5 @@
-const SEAL = require('node-seal');
-
 module.exports = async function (RED) {
+    const SEAL = require('node-seal');
     const seal = await SEAL();
 
     function CKKSContext(node) {

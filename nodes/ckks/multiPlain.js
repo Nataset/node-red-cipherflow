@@ -1,11 +1,11 @@
 module.exports = function (RED) {
-    const { getChainIndex, getScale } = require('../util.js');
+    const { getChainIndex } = require('../../util/getDetail.js');
+    const { handleFindError } = require('../../util/vaildation.js');
 
     function multiPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const value = config.value;
-        const isRescale = config.rescale;
         // const flowContext = node.context().flow;
 
         if (!value) {
@@ -26,6 +26,16 @@ module.exports = function (RED) {
                 } else if (!msg.payload.cipherText) {
                     throw new Error('cipherText not found');
                 } else {
+                    let nodeStatusText = '';
+                    let newExactResult;
+                    const inputNodeType = msg.inputNodeType;
+
+                    if (inputNodeType == 'single') {
+                        newExactResult = msg.exactResult * value;
+                    } else if (inputNodeType == 'range') {
+                        newExactResult = msg.exactResult.map(num => num * value);
+                    }
+
                     const cipherText = msg.payload.cipherText.clone();
 
                     const context = SEALContexts.context;
@@ -40,19 +50,28 @@ module.exports = function (RED) {
                     evaluator.multiplyPlain(cipherText, plainText, cipherText);
                     evaluator.relinearize(cipherText, relinKey, cipherText);
 
-                    if (isRescale) {
-                        evaluator.rescaleToNext(cipherText, cipherText);
-                        cipherText.setScale(scale);
-                    }
+                    evaluator.rescaleToNext(cipherText, cipherText);
+                    cipherText.setScale(scale);
 
                     const chainIndex = getChainIndex(cipherText, context);
+                    nodeStatusText += `ChainIndex: ${chainIndex}`;
+
+                    nodeStatusText += handleFindError(
+                        node,
+                        config,
+                        SEALContexts,
+                        cipherText,
+                        newExactResult,
+                        inputNodeType,
+                    );
 
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}`,
+                        text: nodeStatusText,
                     });
 
+                    msg.exactResult = newExactResult;
                     msg.latestNodeId = config.id;
                     msg.payload = { cipherText: cipherText };
                     node.send(msg);

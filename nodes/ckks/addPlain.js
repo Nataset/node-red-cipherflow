@@ -1,11 +1,13 @@
 module.exports = function (RED) {
-    const { getChainIndex, getScale } = require('../util.js');
+    const { getChainIndex } = require('../../util/getDetail.js');
 
     function addPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
         const value = config.value;
         // const flowContext = node.context().flow;
+        const showErrorPercent = config.showErrorPercent;
+        const showErrorDetail = config.showErrorDetail;
 
         if (!value) {
             const err = new Error('value field is empty');
@@ -25,6 +27,9 @@ module.exports = function (RED) {
                 } else if (!msg.payload.cipherText) {
                     throw new Error('CipherText not found');
                 } else {
+                    let nodeStatusText = '';
+                    const newExactResult = msg.exactResult + value;
+
                     const cipherText = msg.payload.cipherText.clone();
                     const context = SEALContexts.context;
                     const encoder = SEALContexts.encoder;
@@ -36,11 +41,30 @@ module.exports = function (RED) {
                     evaluator.addPlain(cipherText, plainText, cipherText);
 
                     const chainIndex = getChainIndex(cipherText, context);
+                    nodeStatusText += `ChainIndex: ${chainIndex}`;
+
+                    if (showErrorPercent || showErrorDetail) {
+                        const decryptor = SEALContexts.decryptor;
+                        const encoder = SEALContexts.encoder;
+                        const resultArray = encoder.decode(decryptor.decrypt(resultCipher));
+
+                        if (msg.inputNodeType == 'single') {
+                            const cipherResult = getAvgFirstTen(resultArray);
+                            const errorDetail = getErrorDetail(cipherResult, newExactResult);
+
+                            if (showErrorPercent)
+                                nodeStatusText += ` Error Percent: ${errorDetail.error}`;
+
+                            if (showErrorDetail) node.warn(errorDetail);
+                        } else if (msg.inputNodeType == 'range') {
+                            // to do
+                        }
+                    }
 
                     node.status({
                         fill: 'green',
                         shape: 'ring',
-                        text: `ChainIndex: ${chainIndex}`,
+                        text: nodeStatusText,
                     });
 
                     msg.latestNodeId = config.id;

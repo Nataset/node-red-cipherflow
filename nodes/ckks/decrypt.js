@@ -1,7 +1,10 @@
 module.exports = function (RED) {
+    const debuglength = RED.settings.debugMaxLength || 1000;
+
     function ckksDecrypt(config) {
         RED.nodes.createNode(this, config);
         const node = this;
+        const debug = config.debug;
         // const flowContext = node.context().flow;
 
         node.on('input', function (msg) {
@@ -26,7 +29,10 @@ module.exports = function (RED) {
                     const plainText = decryptor.decrypt(newCipherText);
                     const result = encoder.decode(plainText);
 
-                    msg.payload = result.slice(0, 10);
+                    msg.payload = result;
+                    if (debug) {
+                        node.warn(result.slice(0, 10));
+                    }
                     node.send(msg);
                 }
             } catch (err) {

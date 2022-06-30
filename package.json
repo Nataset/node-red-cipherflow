@@ -28,7 +28,9 @@
             "exponent": "nodes/ckks/exponent.js",
             "negate": "nodes/ckks/negate.js",
             "clone": "nodes/ckks/clone.js",
-            "inverse": "nodes/ckks/inverse.js"
+            "inverse": "nodes/ckks/inverse.js",
+            "rangeInput": "nodes/ckks/rangeInput.js",
+            "parseData": "nodes/ckks/parseData.js"
         }
     },
     "dependencies": {
