@@ -4,6 +4,7 @@ module.exports = async function (RED) {
 
     function CKKSContext(node) {
         RED.nodes.createNode(this, node);
+        console.log(this.id);
         // const globalContext = this.context().global;
         // globalContext.set('seal', seal);
 
@@ -48,6 +49,24 @@ module.exports = async function (RED) {
         this.decryptor = decryptor;
         this.evaluator = evaluator;
         this.context = context;
+
+        this.on('close', done => {
+            parms.delete();
+            context.delete();
+            keyGenerator.delete();
+            this.secretKey.delete();
+            this.publicKey.delete();
+            this.relinKey.delete();
+            this.galoisKey.delete();
+            this.encoder.delete();
+            this.encryptor.delete();
+            this.decryptor.delete();
+            this.evaluator.delete();
+            this.context.delete();
+
+            delete this;
+            done();
+        });
     }
     RED.nodes.registerType('ckks-context', CKKSContext);
 };

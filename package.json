@@ -27,11 +27,11 @@
             "multi(P)": "nodes/ckks/multiPlain.js",
             "exponent": "nodes/ckks/exponent.js",
             "negate": "nodes/ckks/negate.js",
-            "clone": "nodes/ckks/clone.js",
             "inverse": "nodes/ckks/inverse.js"
         }
     },
     "dependencies": {
-        "node-seal": "^5.0.0"
+        "node-seal": "^5.0.0",
+        "uuid": "^8.3.2"
     }
 }
