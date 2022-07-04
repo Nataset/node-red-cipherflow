@@ -1,5 +1,6 @@
 module.exports = function (RED) {
     const { getChainIndex } = require('../../util/getDetail.js');
+    const { handleFindError } = require('../../util/vaildation.js');
 
     function negate(config) {
         RED.nodes.createNode(this, config);
@@ -16,6 +17,17 @@ module.exports = function (RED) {
                 } else if (!msg.payload.cipherText) {
                     throw new Error(`CipherText not found`);
                 }
+
+                let nodeStatusText = '';
+                let newExactResult;
+                const inputNodeType = msg.inputNodeType;
+
+                if (inputNodeType == 'single') {
+                    newExactResult = -1 * parseFloat(msg.exactResult);
+                } else if (inputNodeType == 'range') {
+                    // newExactResult = msg.exactResult.map(value => value ** n);
+                }
+
                 const cipherText = msg.payload.cipherText.clone();
                 const evaluator = SEALContexts.evaluator;
                 const context = SEALContexts.context;
@@ -23,13 +35,24 @@ module.exports = function (RED) {
                 evaluator.negate(cipherText, cipherText);
 
                 const chainIndex = getChainIndex(cipherText, context);
+                nodeStatusText += `ChainIndex: ${chainIndex}`;
+
+                nodeStatusText += handleFindError(
+                    node,
+                    config,
+                    SEALContexts,
+                    cipherText,
+                    newExactResult,
+                    inputNodeType,
+                );
 
                 node.status({
                     fill: 'green',
                     shape: 'ring',
-                    text: `ChainIndex: ${chainIndex}`,
+                    text: nodeStatusText,
                 });
 
+                msg.exactResult = newExactResult;
                 msg.latestNodeId = config.id;
                 msg.payload = { cipherText: cipherText };
                 node.send(msg);

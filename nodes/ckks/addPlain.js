@@ -1,10 +1,11 @@
 module.exports = function (RED) {
     const { getChainIndex } = require('../../util/getDetail.js');
+    const { handleFindError } = require('../../util/vaildation.js');
 
     function addPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const value = config.value;
+        const value = parseFloat(config.value);
         // const flowContext = node.context().flow;
         const showErrorPercent = config.showErrorPercent;
         const showErrorDetail = config.showErrorDetail;
@@ -28,7 +29,12 @@ module.exports = function (RED) {
                     throw new Error('CipherText not found');
                 } else {
                     let nodeStatusText = '';
-                    const newExactResult = msg.exactResult + value;
+                    let newExactResult;
+                    const inputNodeType = msg.inputNodeType;
+
+                    if (inputNodeType == 'single') {
+                        newExactResult = parseFloat(msg.exactResult) + value;
+                    }
 
                     const cipherText = msg.payload.cipherText.clone();
                     const context = SEALContexts.context;
@@ -43,23 +49,14 @@ module.exports = function (RED) {
                     const chainIndex = getChainIndex(cipherText, context);
                     nodeStatusText += `ChainIndex: ${chainIndex}`;
 
-                    if (showErrorPercent || showErrorDetail) {
-                        const decryptor = SEALContexts.decryptor;
-                        const encoder = SEALContexts.encoder;
-                        const resultArray = encoder.decode(decryptor.decrypt(resultCipher));
-
-                        if (msg.inputNodeType == 'single') {
-                            const cipherResult = getAvgFirstTen(resultArray);
-                            const errorDetail = getErrorDetail(cipherResult, newExactResult);
-
-                            if (showErrorPercent)
-                                nodeStatusText += ` Error Percent: ${errorDetail.error}`;
-
-                            if (showErrorDetail) node.warn(errorDetail);
-                        } else if (msg.inputNodeType == 'range') {
-                            // to do
-                        }
-                    }
+                    nodeStatusText += handleFindError(
+                        node,
+                        config,
+                        SEALContexts,
+                        cipherText,
+                        newExactResult,
+                        inputNodeType,
+                    );
 
                     node.status({
                         fill: 'green',
@@ -67,6 +64,7 @@ module.exports = function (RED) {
                         text: nodeStatusText,
                     });
 
+                    msg.exactResult = newExactResult;
                     msg.latestNodeId = config.id;
                     msg.payload = { cipherText: cipherText };
                     node.send(msg);

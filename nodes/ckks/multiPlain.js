@@ -5,7 +5,7 @@ module.exports = function (RED) {
     function multiPlain(config) {
         RED.nodes.createNode(this, config);
         const node = this;
-        const value = config.value;
+        const value = parseFloat(config.value);
         // const flowContext = node.context().flow;
 
         if (!value) {

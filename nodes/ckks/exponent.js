@@ -22,7 +22,7 @@ module.exports = function (RED) {
                     const inputNodeType = msg.inputNodeType;
 
                     if (inputNodeType == 'single') {
-                        newExactResult = msg.exactResult ** n;
+                        newExactResult = parseFloat(msg.exactResult) ** n;
                     } else if (inputNodeType == 'range') {
                         newExactResult = msg.exactResult.map(value => value ** n);
                     }

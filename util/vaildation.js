@@ -1,6 +1,6 @@
 const getErrorDetail = (cipherResult, exactResult) => {
     const error = Math.abs(exactResult - cipherResult);
-    const errorPercent = (error / exactResult) * 100;
+    const errorPercent = Math.abs((error / exactResult) * 100);
 
     return {
         cipherResult: cipherResult,
@@ -19,7 +19,7 @@ const getErrorDetailArray = (resultArray, exactResults) => {
     const errorPercents = [];
     const errors = exactResults.map((exactValue, i) => {
         const error = Math.abs(exactValue - resultArray[i]);
-        errorPercents[i] = (error / exactValue) * 100;
+        errorPercents[i] = Math.abs((error / exactValue) * 100);
         return error;
     });
 

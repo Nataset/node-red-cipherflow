@@ -4,6 +4,8 @@
         color: '#a6bbcf',
         defaults: {
             name: { value: 'negate' },
+            showErrorPercent: { value: false },
+            showErrorDetail: { value: false },
         },
         inputs: 1,
         outputs: 1,
@@ -15,5 +17,29 @@
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-showErrorPercent"
+            ><i class="fa fa-pencil"></i><span>Option</span>
+        </label>
+        <label for="node-input-showErrorPercent" style="width:70%">
+            <input
+                type="checkbox"
+                id="node-input-showErrorPercent"
+                style="display:inline-block; width:22px; vertical-align:top;"
+                autocomplete="off"
+            /><span>show error percent in status</span>
+        </label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-showErrorDetail"></label>
+        <label for="node-input-showErrorDetail" style="width:70%">
+            <input
+                type="checkbox"
+                id="node-input-showErrorDetail"
+                style="display:inline-block; width:22px; vertical-align:top;"
+                autocomplete="off"
+            /><span>show error detail in debug window</span>
+        </label>
     </div>
 </script>

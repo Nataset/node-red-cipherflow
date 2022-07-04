@@ -67,8 +67,8 @@ module.exports = function (RED) {
 
                     const firstCipher = firstValue.cipher.clone();
                     const secondCipher = secondValue.cipher.clone();
-                    const firstExact = firstValue.exactValue;
-                    const secondExact = secondValue.exactValue;
+                    const firstExact = parseFloat(firstValue.exactValue);
+                    const secondExact = parseFloat(secondValue.exactValue);
                     const firstInputNodeType = firstValue.inputNodeType;
                     const secondInputNodeType = secondValue.inputNodeType;
 
