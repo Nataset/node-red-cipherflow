@@ -1,80 +1,94 @@
+/* 
+    add known value to the ciphertext
+    ---use 0 chainIndex---
+    input: ciphertext in msg.payload
+    output: added result ciphertext in msg.payload
+*/
 module.exports = function (RED) {
-    const { getChainIndex } = require('../../util/getDetail.js');
-    const { handleFindError } = require('../../util/vaildation.js');
+	const { getChainIndex } = require('../../util/getDetail.js');
+	// const { handleFindError } = require('../../util/vaildation.js');
 
-    function addPlain(config) {
-        RED.nodes.createNode(this, config);
-        const node = this;
-        const value = parseFloat(config.value);
-        // const flowContext = node.context().flow;
-        const showErrorPercent = config.showErrorPercent;
-        const showErrorDetail = config.showErrorDetail;
+	function addPlain(config) {
+		RED.nodes.createNode(this, config);
+		const node = this;
+		// get value from this node html page
+		const value = parseFloat(config.value);
+		// const showErrorPercent = config.showErrorPercent;
+		// const showErrorDetail = config.showErrorDetail;
 
-        if (!value) {
-            const err = new Error('value field is empty');
-            node.error(err);
-            node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-            return;
-        }
+		// show value in the node status below the node if didn't value will show error in status
+		if (!value) {
+			const err = new Error('value field is empty');
+			node.error(err);
+			node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+			return;
+		} else {
+			node.status({ fill: 'blue', shape: 'ring', text: `Value: ${value}` });
+		}
 
-        node.status({ fill: 'grey', shape: 'ring' });
+		node.on('input', function (msg) {
+			// get seal object from config node by useing config node id that passed from injectContext node
+			const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
 
-        node.on('input', function (msg) {
-            const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
-            // const SEALContexts = flowContext.get(msg.contextName);
-            try {
-                if (!SEALContexts) {
-                    throw new Error('SEALContext not found');
-                } else if (!msg.payload.cipherText) {
-                    throw new Error('CipherText not found');
-                } else {
-                    let nodeStatusText = '';
-                    let newExactResult;
-                    const inputNodeType = msg.inputNodeType;
+			try {
+				if (!SEALContexts) {
+					throw new Error('SEALContext not found');
+				} else if (!msg.payload.cipherText) {
+					throw new Error('CipherText not found');
+				} else {
+					// compute new exact value of this node
+					const newExactResult = parseFloat(msg.exactResult) + value;
 
-                    if (inputNodeType == 'single') {
-                        newExactResult = parseFloat(msg.exactResult) + value;
-                    }
+					// clone the ciphertext prevent race condition
+					const cipherText = msg.payload.cipherText.clone();
 
-                    const cipherText = msg.payload.cipherText.clone();
-                    const context = SEALContexts.context;
-                    const encoder = SEALContexts.encoder;
-                    const evaluator = SEALContexts.evaluator;
+					// get seal objects needed to add value to the ciphertext from the config node
+					const context = SEALContexts.context;
+					const encoder = SEALContexts.encoder;
+					const evaluator = SEALContexts.evaluator;
 
-                    const array = Float64Array.from({ length: encoder.slotCount }, () => value);
-                    const plainText = encoder.encode(array, cipherText.scale);
-                    evaluator.plainModSwitchTo(plainText, cipherText.parmsId, plainText);
-                    evaluator.addPlain(cipherText, plainText, cipherText);
+					// encode add value to plaintext before add to the ciphertext;
+					const array = Float64Array.from({ length: encoder.slotCount }, () => value);
+					const plainText = encoder.encode(array, cipherText.scale);
 
-                    const chainIndex = getChainIndex(cipherText, context);
-                    nodeStatusText += `ChainIndex: ${chainIndex}`;
+					// change chainIndex of the new plaintext to same level of ciphertext;
+					evaluator.plainModSwitchTo(plainText, cipherText.parmsId, plainText);
+					evaluator.addPlain(cipherText, plainText, cipherText);
 
-                    nodeStatusText += handleFindError(
-                        node,
-                        config,
-                        SEALContexts,
-                        cipherText,
-                        newExactResult,
-                        inputNodeType,
-                    );
+					// get chainIndex for more info for chainIndex see input.js node line 44
+					const chainIndex = getChainIndex(cipherText, context);
 
-                    node.status({
-                        fill: 'green',
-                        shape: 'ring',
-                        text: nodeStatusText,
-                    });
+					// nodeStatusText += handleFindError(
+					// 	node,
+					// 	config,
+					// 	SEALContexts,
+					// 	cipherText,
+					// 	newExactResult,
+					// 	inputNodeType,
+					// );
 
-                    msg.exactResult = newExactResult;
-                    msg.latestNodeId = config.id;
-                    msg.payload = { cipherText: cipherText };
-                    node.send(msg);
-                }
-            } catch (err) {
-                node.error(err);
-                node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-            }
-        });
-    }
+					// if not error show chainIndex of output ciphertext
+					node.status({
+						fill: 'green',
+						shape: 'ring',
+						text: `ChainIndex: ${chainIndex}`,
+					});
 
-    RED.nodes.registerType('add(P)', addPlain);
+					msg.exactResult = newExactResult;
+					msg.latestNodeId = config.id;
+					msg.payload = { cipherText: cipherText };
+					node.send(msg);
+
+					// delete unuse instance of seal objects prevent out of wasm memory error
+					plainText.delete();
+					msg.payload.cipherText.delete();
+				}
+			} catch (err) {
+				node.error(err);
+				node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+			}
+		});
+	}
+
+	RED.nodes.registerType('add(P)', addPlain);
 };
