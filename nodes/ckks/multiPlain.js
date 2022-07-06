@@ -25,8 +25,9 @@ module.exports = function (RED) {
 		}
 
 		node.on('input', function (msg) {
+			// get seal objects from config node
 			const SEALContexts = RED.nodes.getNode(msg.context.nodeId);
-			// const SEALContexts = flowContext.get(msg.contextName);
+
 			try {
 				if (!SEALContexts) {
 					throw new Error('SEALContext not found');
@@ -37,7 +38,8 @@ module.exports = function (RED) {
 					const newExactResult = msg.exactResult * value;
 
 					// cloen the ciphertext prevent race condition
-					const cipherText = msg.payload.cipherText.clone();
+					const inputCipher = msg.payload.cipherText;
+					const cipherText = inputCipher.clone();
 
 					// get seal objects needed to multiply value to the ciphertext from config ndoe
 					const context = SEALContexts.context;
@@ -60,7 +62,6 @@ module.exports = function (RED) {
 					cipherText.setScale(scale);
 
 					const chainIndex = getChainIndex(cipherText, context);
-					// nodeStatusText += `ChainIndex: ${chainIndex}`;
 
 					// nodeStatusText += handleFindError(
 					// 	node,
@@ -75,7 +76,7 @@ module.exports = function (RED) {
 					node.status({
 						fill: 'green',
 						shape: 'ring',
-						text: nodeStatusText,
+						text: `ChainIndex: ${chainIndex}`,
 					});
 
 					msg.exactResult = newExactResult;
@@ -84,8 +85,8 @@ module.exports = function (RED) {
 					node.send(msg);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
+					inputCipher.delete();
 					plainText.delete();
-					msg.payload.cipherText.delete();
 				}
 			} catch (err) {
 				node.error(err);

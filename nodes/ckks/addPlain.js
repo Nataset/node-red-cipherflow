@@ -40,7 +40,8 @@ module.exports = function (RED) {
 					const newExactResult = parseFloat(msg.exactResult) + value;
 
 					// clone the ciphertext prevent race condition
-					const cipherText = msg.payload.cipherText.clone();
+					const inputCipher = msg.payload.cipherText;
+					const cipherText = inputCipher.clone();
 
 					// get seal objects needed to add value to the ciphertext from the config node
 					const context = SEALContexts.context;
@@ -80,8 +81,8 @@ module.exports = function (RED) {
 					node.send(msg);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
+					inputCipher.delete();
 					plainText.delete();
-					msg.payload.cipherText.delete();
 				}
 			} catch (err) {
 				node.error(err);

@@ -45,8 +45,9 @@ module.exports = function (RED) {
 					const scale = SEALContexts.scale;
 
 					// clone ciphertext prevent race condition
-					const cipherText = msg.payload.cipherText.clone();
-					const resultCipher = msg.payload.cipherText.clone();
+					const inputCipher = msg.payload.cipherText;
+					const cipherText = inputCipher.clone();
+					const resultCipher = inputCipher.clone();
 
 					// power ciphertext by ciphertext multiply it self n time
 					// rescale each time it multiply
@@ -59,7 +60,6 @@ module.exports = function (RED) {
 					}
 
 					const chainIndex = getChainIndex(resultCipher, context);
-					nodeStatusText += `ChainIndex: ${chainIndex}`;
 
 					// nodeStatusText += handleFindError(
 					// 	node,
@@ -73,7 +73,7 @@ module.exports = function (RED) {
 					node.status({
 						fill: 'green',
 						shape: 'ring',
-						text: nodeStatusText,
+						text: `ChainIndex: ${chainIndex}`,
 					});
 
 					msg.exactResult = newExactResult;
@@ -82,7 +82,7 @@ module.exports = function (RED) {
 					node.send(msg);
 
 					// delete unuse seal instance prevent out of wasm memory error
-					msg.payload.cipherText.delete();
+					inputCipher.delete();
 					cipherText.delete();
 				}
 			} catch (err) {

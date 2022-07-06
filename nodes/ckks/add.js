@@ -34,7 +34,7 @@ module.exports = function (RED) {
 				// if msg is a first msg run code below
 				if (firstNodeId == null || msg.latestNodeId == firstNodeId) {
 					// clone msg ciphertext
-					const firstCipher = msg.payload.cipherText.clone();
+					const firstCipher = msg.payload.cipherText;
 					// set firstNodeId to check order of the msg;
 					firstNodeId = msg.latestNodeId;
 					nodeContext.set('firstNodeId', firstNodeId);
@@ -52,7 +52,7 @@ module.exports = function (RED) {
 				} // if msg is a second msg run code below, or msg is coming for the secondNodeId
 				else if (secondNodeId == null || msg.latestNodeId == secondNodeId) {
 					// clone msg ciphertext
-					const secondCipher = msg.payload.cipherText.clone();
+					const secondCipher = msg.payload.cipherText;
 					// set secondNodeId to check order of the msg
 					secondNodeId = msg.latestNodeId;
 					nodeContext.set('secondNodeId', secondNodeId);
@@ -73,6 +73,7 @@ module.exports = function (RED) {
 
 				if (firstQueue.length > 0 && secondQueue.length > 0) {
 					// shift object out from queue
+
 					const firstValue = firstQueue.shift();
 					const secondValue = secondQueue.shift();
 
@@ -139,8 +140,11 @@ module.exports = function (RED) {
 					msg.payload = { cipherText: resultCipher };
 					node.send(msg);
 
-					//delete seal object instance
+					// delete seal object instance prevent out of wasm memory
 					firstValue.cipher.delete();
+					secondValue.cipher.delete();
+					firstCipher.delete();
+					secondCipher.delete();
 				}
 			} catch (err) {
 				node.error(err);
