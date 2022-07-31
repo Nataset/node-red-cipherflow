@@ -4,10 +4,9 @@
 		color: '#a6bbcf',
 		defaults: {
 			name: { value: 'inverse' },
-			max: { value: 10000 },
-			max: { value: 0 },
-			showErrorPercent: { value: false },
-			showErrorDetail: { value: false },
+			maxInput: { value: 10000 },
+			minInput: { value: 0 },
+			outputs: { value: 1 },
 		},
 		inputs: 1,
 		outputs: 1,
@@ -22,40 +21,21 @@
 	</div>
 
 	<div class="form-row">
-		<label for="node-input-max"
+		<label for="node-input-maxInput"
 			><i class="fa fa-tag"></i>maximum possible ciphertext input value</label
 		>
-		<input type="number" id="node-input-max" placeholder="10000" />
+		<input type="number" id="node-input-maxInput" />
 	</div>
 
 	<div class="form-row">
-		<label for="node-input-min"
+		<label for="node-input-minInput"
 			><i class="fa fa-tag"></i>minimum possible ciphertext input value</label
 		>
-		<input type="number" id="node-input-min" placeholder="0" />
+		<input type="number" id="node-input-minInput" />
 	</div>
+
 	<div class="form-row">
-		<label for="node-input-showErrorPercent"
-			><i class="fa fa-pencil"></i><span>Option</span>
-		</label>
-		<label for="node-input-showErrorPercent" style="width:70%">
-			<input
-				type="checkbox"
-				id="node-input-showErrorPercent"
-				style="display:inline-block; width:22px; vertical-align:top;"
-				autocomplete="off"
-			/><span>show error percent in status</span>
-		</label>
-	</div>
-	<div class="form-row">
-		<label for="node-input-showErrorDetail"></label>
-		<label for="node-input-showErrorDetail" style="width:70%">
-			<input
-				type="checkbox"
-				id="node-input-showErrorDetail"
-				style="display:inline-block; width:22px; vertical-align:top;"
-				autocomplete="off"
-			/><span>show error detail in debug window</span>
-		</label>
+		<label for="node-input-outputs"><i class="fa fa-tag"></i>number of outputs</label>
+		<input type="number" id="node-input-outputs" placeholder="1" />
 	</div>
 </script>

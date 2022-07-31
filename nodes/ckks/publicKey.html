@@ -1,0 +1,52 @@
+<script type="text/javascript">
+	RED.nodes.registerType('ckks-publicKey', {
+		category: 'config',
+		defaults: {
+			name: { value: 'ckks-publicKey', required: true },
+			originContextNode: { value: '' },
+			isUpload: { value: true },
+			publicKey: { value: 'this is default' },
+		},
+		label: function () {
+			return this.name;
+		},
+		oneditprepare: function () {
+			var publicKey = this.publicKey;
+
+			$('#node-config-input-coeffModulus').typedInput({
+				type: 'json',
+				types: ['json'],
+			});
+
+			$('#node-config-publicKey').change(function () {
+				const [file] = this.files;
+				const fr = new FileReader();
+				fr.addEventListener(
+					'load',
+					() => {
+						publicKey = fr.result;
+						// $('#node-config-input-publicKey').val(publicKey);
+					},
+					false,
+				);
+
+				if (file) {
+					fr.readAsText(file);
+				}
+			});
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="ckks-publicKey">
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+		<input type="text" id="node-config-input-name" />
+	</div>
+
+	<h1>Upload a key here:</h1>
+
+	<input type="file" id="node-config-publicKey" /><br />
+
+	<input type="text" id="node-config-input-publicKey" />
+</script>

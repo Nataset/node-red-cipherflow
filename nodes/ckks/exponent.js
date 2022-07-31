@@ -12,6 +12,7 @@ module.exports = function (RED) {
 	function exponent(config) {
 		RED.nodes.createNode(this, config);
 		const node = this;
+		const outputs = config.outputs;
 		// get n from html page;
 		const n = parseFloat(config.n);
 
@@ -79,7 +80,14 @@ module.exports = function (RED) {
 					msg.exactResult = newExactResult;
 					msg.latestNodeId = config.id;
 					msg.payload = { cipherText: resultCipher };
-					node.send(msg);
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: resultCipher.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray);
 
 					// delete unuse seal instance prevent out of wasm memory error
 					inputCipher.delete();

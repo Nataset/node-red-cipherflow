@@ -1,44 +1,44 @@
 <script type="text/javascript">
-    RED.nodes.registerType('start', {
-        category: 'SEAL_CKKS',
-        color: '#f3c12b',
-        defaults: {
-            name: { value: 'start' },
-            context: { value: '', type: 'ckks-context' },
-        },
-        inputs: 0,
-        outputs: 1,
-        icon: 'inject.svg',
-        label: function () {
-            return this.name || 'start';
-        },
-        button: {
-            onclick: function () {
-                var node = this;
-                $.ajax({
-                    url: 'inject/' + this.id,
-                    type: 'POST',
-                    success: function (resp) {
-                        RED.notify(node._('inject.success', { label: 'ckks-injectContext' }), {
-                            type: 'success',
-                            id: 'inject',
-                            timeout: 2000,
-                        });
-                    },
-                });
-            },
-        },
-    });
+	RED.nodes.registerType('start', {
+		category: 'SEAL_CKKS',
+		color: '#f3c12b',
+		defaults: {
+			name: { value: 'start' },
+			context: { value: '', type: 'ckks-context' },
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: 'inject.svg',
+		label: function () {
+			return this.name || 'start';
+		},
+		button: {
+			onclick: function () {
+				var node = this;
+				$.ajax({
+					url: 'inject/' + this.id,
+					type: 'POST',
+					success: function (resp) {
+						RED.notify(node._('inject.success', { label: 'ckks-injectContext' }), {
+							type: 'success',
+							id: 'inject',
+							timeout: 2000,
+						});
+					},
+				});
+			},
+		},
+	});
 </script>
 
 <script type="text/html" data-template-name="start">
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
-        <input type="text" id="node-input-name" placeholder="Name" />
-    </div>
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
 
-    <div class="form-row">
-        <label for="node-input-context"><i class="fa fa-tag"></i> context</label>
-        <input id="node-input-context" />
-    </div>
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i> context</label>
+		<input id="node-input-context" />
+	</div>
 </script>

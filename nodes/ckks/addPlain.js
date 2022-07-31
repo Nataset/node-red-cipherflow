@@ -6,15 +6,13 @@
 */
 module.exports = function (RED) {
 	const { getChainIndex } = require('../../util/getDetail.js');
-	// const { handleFindError } = require('../../util/vaildation.js');
 
 	function addPlain(config) {
 		RED.nodes.createNode(this, config);
 		const node = this;
+		const outputs = config.outputs;
 		// get value from this node html page
 		const value = parseFloat(config.value);
-		// const showErrorPercent = config.showErrorPercent;
-		// const showErrorDetail = config.showErrorDetail;
 
 		// show value in the node status below the node if didn't value will show error in status
 		if (!value) {
@@ -59,15 +57,6 @@ module.exports = function (RED) {
 					// get chainIndex for more info for chainIndex see input.js node line 44
 					const chainIndex = getChainIndex(cipherText, context);
 
-					// nodeStatusText += handleFindError(
-					// 	node,
-					// 	config,
-					// 	SEALContexts,
-					// 	cipherText,
-					// 	newExactResult,
-					// 	inputNodeType,
-					// );
-
 					// if not error show chainIndex of output ciphertext
 					node.status({
 						fill: 'green',
@@ -78,7 +67,15 @@ module.exports = function (RED) {
 					msg.exactResult = newExactResult;
 					msg.latestNodeId = config.id;
 					msg.payload = { cipherText: cipherText };
-					node.send(msg);
+
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: cipherText.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					inputCipher.delete();

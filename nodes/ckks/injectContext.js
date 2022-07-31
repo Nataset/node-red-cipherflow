@@ -45,22 +45,18 @@ module.exports = function (RED) {
 	RED.nodes.registerType('start', injectContext);
 
 	// post function for the inject node-red feature
-	RED.httpAdmin.post(
-		'/inject/:id',
-		RED.auth.needsPermission('inject.write'),
-		function (req, res) {
-			const node = RED.nodes.getNode(req.params.id);
-			if (node != null) {
-				try {
-					node.receive();
-					res.sendStatus(200);
-				} catch (err) {
-					res.sendStatus(500);
-					node.error(RED._('inject.failed', { error: err.toString() }));
-				}
-			} else {
-				res.sendStatus(404);
+	RED.httpAdmin.post('/inject/:id', RED.auth.needsPermission('start.write'), function (req, res) {
+		const node = RED.nodes.getNode(req.params.id);
+		if (node != null) {
+			try {
+				node.receive();
+				res.sendStatus(200);
+			} catch (err) {
+				res.sendStatus(500);
+				node.error(RED._('inject.failed', { error: err.toString() }));
 			}
-		},
-	);
+		} else {
+			res.sendStatus(404);
+		}
+	});
 };

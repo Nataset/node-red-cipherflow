@@ -7,15 +7,14 @@
 
 module.exports = function (RED) {
 	const { getChainIndex } = require('../../util/getDetail.js');
-	// const { handleFindError } = require('../../util/vaildation.js');
 
 	function inverse(config) {
 		RED.nodes.createNode(this, config);
 		const node = this;
 		// get max and min possible value from html page;
-		const max = parseFloat(config.max);
-		const min = parseFloat(config.min);
-
+		const max = parseFloat(config.maxInput);
+		const min = parseFloat(config.minInput);
+		const outputs = parseInt(config.outputs);
 		// if max less than min show error
 		if (max < min) {
 			const err = new Error(`maximum value can't less than minimum value`);
@@ -41,7 +40,7 @@ module.exports = function (RED) {
 
 				// clone input ciphertext prevent race condition
 				const inputCipher = msg.payload.cipherText;
-				const cipherText = msg.payload.cipherText;
+				const cipherText = inputCipher.clone();
 
 				// declare variable seal object for needed to inverse ciphertext for easy access
 				const evaluator = SEALContexts.evaluator;
@@ -121,18 +120,9 @@ module.exports = function (RED) {
 				const resultEncryArray = evaluator.multiplyPlain(invNorEncryArray, oneNorEncrypt);
 				evaluator.relinearize(resultEncryArray, relinKey, resultEncryArray);
 				evaluator.rescaleToNext(resultEncryArray, resultEncryArray);
+				resultEncryArray.setScale(scale);
 
 				const chainIndex = getChainIndex(resultEncryArray, context);
-				// nodeStatusText += `ChainIndex: ${chainIndex}`;
-
-				// nodeStatusText += handleFindError(
-				// 	node,
-				// 	config,
-				// 	SEALContexts,
-				// 	resultEncryArray,
-				// 	newExactResult,
-				// 	inputNodeType,
-				// );
 
 				node.status({
 					fill: 'green',
@@ -143,7 +133,13 @@ module.exports = function (RED) {
 				msg.exactResult = newExactResult;
 				msg.latestNodeId = config.id;
 				msg.payload = { cipherText: resultEncryArray };
-				node.send(msg);
+				const msgArray = [msg];
+				for (i = 1; i < outputs; i++) {
+					const newMsg = { ...msg };
+					newMsg.payload = { cipherText: resultEncryArray.clone() };
+					msgArray.push(newMsg);
+				}
+				node.send(msgArray);
 
 				// delete unuse instance of seal objects prevent out of wasm memory error
 				inputCipher.delete();

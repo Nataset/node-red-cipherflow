@@ -13,7 +13,7 @@ module.exports = function (RED) {
 		const node = this;
 		// get value from node html page
 		const value = parseFloat(config.value);
-		// const flowContext = node.context().flow;
+		const outputs = parseInt(config.outputs);
 
 		if (!value) {
 			const err = new Error('value field is empty');
@@ -82,7 +82,14 @@ module.exports = function (RED) {
 					msg.exactResult = newExactResult;
 					msg.latestNodeId = config.id;
 					msg.payload = { cipherText: cipherText };
-					node.send(msg);
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: cipherText.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					inputCipher.delete();

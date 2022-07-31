@@ -1,37 +1,41 @@
 {
-    "name": "node-red-cipherflow",
-    "version": "0.1.3",
-    "description": "microsoft seal for Node-RED.",
-    "main": "nodes/ckks/ckks-encrypt.js",
-    "keywords": [
-        "node-red",
-        "homomorphic",
-        "encryption",
-        "homomorphic-encryption",
-        "microsoft seal"
-    ],
-    "author": {
-        "name": "Nataset Tanabodee",
-        "email": "nataset.t@ku.th"
-    },
-    "license": "MIT",
-    "node-red": {
-        "nodes": {
-            "ckks-context": "nodes/ckks/context.js",
-            "start": "nodes/ckks/injectContext.js",
-            "input": "nodes/ckks/input.js",
-            "decrypt": "nodes/ckks/decrypt.js",
-            "add(E)": "nodes/ckks/add.js",
-            "add(P)": "nodes/ckks/addPlain.js",
-            "multi(E)": "nodes/ckks/multi.js",
-            "multi(P)": "nodes/ckks/multiPlain.js",
-            "exponent": "nodes/ckks/exponent.js",
-            "negate": "nodes/ckks/negate.js",
-            "inverse": "nodes/ckks/inverse.js"
-        }
-    },
-    "dependencies": {
-        "node-seal": "^5.0.0",
-        "uuid": "^8.3.2"
-    }
+	"name": "node-red-cipherflow",
+	"version": "0.1.3",
+	"description": "microsoft seal for Node-RED.",
+	"main": "nodes/ckks/ckks-encrypt.js",
+	"keywords": [
+		"node-red",
+		"homomorphic",
+		"encryption",
+		"homomorphic-encryption",
+		"microsoft seal"
+	],
+	"author": {
+		"name": "Nataset Tanabodee",
+		"email": "nataset.t@ku.th"
+	},
+	"license": "MIT",
+	"node-red": {
+		"nodes": {
+			"ckks-context": "nodes/ckks/context.js",
+			"start": "nodes/ckks/injectContext.js",
+			"input": "nodes/ckks/input.js",
+			"decrypt": "nodes/ckks/decrypt.js",
+			"add(E)": "nodes/ckks/add.js",
+			"add(P)": "nodes/ckks/addPlain.js",
+			"multi(E)": "nodes/ckks/multi.js",
+			"multi(P)": "nodes/ckks/multiPlain.js",
+			"exponent": "nodes/ckks/exponent.js",
+			"negate": "nodes/ckks/negate.js",
+			"inverse": "nodes/ckks/inverse.js",
+			"debug": "nodes/ckks/debug.js",
+			"ckks-sidebar": "nodes/sidebar/sidebar.js",
+			"ckks-pubilcKey": "nodes/ckks/publicKey.js",
+			"encrypt": "nodes/ckks/encrypt.js"
+		}
+	},
+	"dependencies": {
+		"node-seal": "^5.0.0",
+		"uuid": "^8.3.2"
+	}
 }

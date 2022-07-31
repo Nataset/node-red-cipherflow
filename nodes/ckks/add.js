@@ -5,6 +5,7 @@ module.exports = function (RED) {
 	function add(config) {
 		RED.nodes.createNode(this, config);
 		const node = this;
+		const outputs = config.outputs;
 		// get node context(like global store in node) for manage multiple input
 		const nodeContext = node.context();
 		// set queue and latestNodeId to empty array and null when first create node
@@ -73,7 +74,6 @@ module.exports = function (RED) {
 
 				if (firstQueue.length > 0 && secondQueue.length > 0) {
 					// shift object out from queue
-
 					const firstValue = firstQueue.shift();
 					const secondValue = secondQueue.shift();
 
@@ -107,27 +107,6 @@ module.exports = function (RED) {
 
 					const resultCipher = evaluator.add(firstCipher, secondCipher);
 					const chainIndex = getChainIndex(resultCipher, context);
-					// nodeStatusText += `ChainIndex: ${chainIndex}`;
-
-					// if (firstInputNodeType == 'single' && secondInputNodeType == 'single') {
-					// 	nodeStatusText += handleFindError(
-					// 		node,
-					// 		config,
-					// 		SEALContexts,
-					// 		resultCipher,
-					// 		newExact,
-					// 		'single',
-					// 	);
-					// } else {
-					// 	nodeStatusText += handleFindError(
-					// 		node,
-					// 		config,
-					// 		SEALContexts,
-					// 		resultCipher,
-					// 		newExact,
-					// 		'range',
-					// 	);
-					// }
 
 					node.status({
 						fill: 'green',
@@ -138,7 +117,14 @@ module.exports = function (RED) {
 					msg.exactResult = newExact;
 					msg.latestNodeId = config.id;
 					msg.payload = { cipherText: resultCipher };
-					node.send(msg);
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: resultCipher.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray);
 
 					// delete seal object instance prevent out of wasm memory
 					firstValue.cipher.delete();

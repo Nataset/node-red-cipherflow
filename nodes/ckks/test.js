@@ -1,17 +1,9 @@
-/*
-    negate ciphertext input value
-    ---use 0 chainIndex---
-    input: ciphertext in msg.payload
-    output: negated result ciphertext in msg.payload
-*/
-
 module.exports = function (RED) {
-	const { getChainIndex } = require('../../util/getDetail.js');
-
-	function negate(config) {
+	function test(config) {
 		RED.nodes.createNode(this, config);
 		const node = this;
 		const outputs = parseInt(config.outputs);
+		const flowContext = this.context.flow();
 		// node status show grey ring when first create
 		node.status({ fill: 'grey', shape: 'ring' });
 
@@ -69,5 +61,14 @@ module.exports = function (RED) {
 		});
 	}
 
-	RED.nodes.registerType('negate', negate);
+	RED.nodes.registerType('test', test);
+
+	RED.httpAdmin.get('/CKKSparms', RED.auth.needsPermission('test.read'), function (req, res) {
+		jsonTestData = {
+			context1: 'context1 data',
+			context2: 'context2 data',
+			context3: 'context3 data',
+		};
+		res.json(jsonTestData);
+	});
 };
