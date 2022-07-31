@@ -17,21 +17,21 @@
 	"license": "MIT",
 	"node-red": {
 		"nodes": {
-			"ckks-context": "nodes/ckks/context.js",
-			"start": "nodes/ckks/injectContext.js",
-			"input": "nodes/ckks/input.js",
-			"decrypt": "nodes/ckks/decrypt.js",
-			"add(E)": "nodes/ckks/add.js",
-			"add(P)": "nodes/ckks/addPlain.js",
-			"multi(E)": "nodes/ckks/multi.js",
-			"multi(P)": "nodes/ckks/multiPlain.js",
-			"exponent": "nodes/ckks/exponent.js",
-			"negate": "nodes/ckks/negate.js",
-			"inverse": "nodes/ckks/inverse.js",
-			"debug": "nodes/ckks/debug.js",
-			"ckks-sidebar": "nodes/sidebar/sidebar.js",
-			"ckks-pubilcKey": "nodes/ckks/publicKey.js",
-			"encrypt": "nodes/ckks/encrypt.js"
+			"seal": "nodes/config/seal.js",
+			"context": "nodes/config/context.js",
+			"publicKey": "nodes/config/publicKey.js",
+			"secretKey": "nodes/config/secretKey.js",
+			"encrypt": "nodes/encode/encrypt.js",
+			"decrypt": "nodes/encode/decrypt.js",
+			"setContext": "nodes/encode/setContext.js",
+			"input": "nodes/encode/input.js",
+			"add(E)": "nodes/compute/add.js",
+			"add(P)": "nodes/compute/addPlain.js",
+			"multi(E)": "nodes/compute/multi.js",
+			"multi(P)": "nodes/compute/multiPlain.js",
+			"negate": "nodes/compute/negate.js",
+			"exponent": "nodes/compute/exponent.js",
+			"inverse": "nodes/compute/inverse.js"
 		}
 	},
 	"dependencies": {
