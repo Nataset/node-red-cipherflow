@@ -1,0 +1,63 @@
+<script>
+	RED.nodes.registerType('input', {
+		category: 'cipherflow',
+		color: '#E1D96E',
+		defaults: {
+			name: { value: 'input' },
+			context: { value: '', type: 'context' },
+			publicKey: { value: '', type: 'publicKey' },
+			outputs: { value: 1 },
+			value: { value: '', require: true },
+			debug: { value: false },
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: 'file.png',
+		label: function () {
+			return this.name || 'input';
+		},
+		button: {
+			onclick: function () {
+				var node = this;
+				$.ajax({
+					url: 'inject/' + this.id,
+					type: 'POST',
+					success: function (resp) {
+						RED.notify(node._('inject.success', { label: 'ckks-injectContext' }), {
+							type: 'success',
+							id: 'inject',
+							timeout: 2000,
+						});
+					},
+				});
+			},
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="input">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i> context</label>
+		<input id="node-input-context" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-publicKey"><i class="fa fa-tag"></i>publicKey</label>
+		<input id="node-input-publicKey" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-outputs"><i class="fa fa-tag"></i>number of outputs</label>
+		<input type="number" id="node-input-outputs" placeholder="1" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-value"><i class="fa fa-tag"></i>Variable Value</label>
+		<input type="number" id="node-input-value" placeholder="Ex: 10, 0.5, -1" />
+	</div>
+</script>

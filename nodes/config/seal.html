@@ -1,0 +1,43 @@
+<script type="text/javascript">
+	RED.nodes.registerType('seal', {
+		category: 'config',
+		hasUsers: false,
+		defaults: {
+			name: { value: 'seal' },
+		},
+		label: function () {
+			return this.name;
+		},
+		onpaletteadd: function () {
+			RED.events.on('workspace:dirty', function (node) {
+				let configExist = false;
+				RED.nodes.eachConfig(function (configNode) {
+					if (configNode.type === 'seal') {
+						configExist = true;
+					}
+				});
+				if (!configExist) {
+					const newSealNode = {
+						id: RED.nodes.id(),
+						_def: RED.nodes.getType('seal'),
+						type: 'seal',
+						hasUsers: false,
+						users: [],
+						name: 'seal',
+						label: function () {
+							return this.name || 'seal';
+						},
+					};
+					RED.nodes.add(newSealNode);
+				}
+			});
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="seal">
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+		<input class="" type="text" id="node-config-input-name" />
+	</div>
+</script>

@@ -1,0 +1,47 @@
+<script>
+	RED.nodes.registerType('decrypt', {
+		category: 'cipherflow',
+		color: '#E1D96E',
+		defaults: {
+			name: { value: 'decrypt' },
+			context: { value: '', type: 'context' },
+			secretKey: { value: '', type: 'secretKey' },
+			showToDebug: { value: true },
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: 'file.png',
+		label: function () {
+			return this.name || 'decrypt';
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="decrypt">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i> context</label>
+		<input id="node-input-context" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-secretKey"><i class="fa fa-tag"></i>secretKey</label>
+		<input id="node-input-secretKey" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-showToDebug"><i class="fa fa-random"></i> <span>To</span></label>
+		<label for="node-input-showToDebug" style="width:70%">
+			<input
+				type="checkbox"
+				id="node-input-showToDebug"
+				style="display:inline-block; width:22px; vertical-align:top;"
+				autocomplete="off"
+				checked
+			/><span>debug window</span>
+		</label>
+	</div>
+</script>

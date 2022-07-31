@@ -1,0 +1,34 @@
+<script>
+	RED.nodes.registerType('add(P)', {
+		category: 'cipherflow',
+		color: '#a6bbcf',
+		defaults: {
+			name: { value: 'add(P)' },
+			value: { value: '', require: true },
+			outputs: { value: 1 },
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: 'file.png',
+		label: function () {
+			return this.name || 'add(P)';
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="add(P)">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-value"><i class="fa fa-tag"></i>Value</label>
+		<input type="number" id="node-input-value" placeholder="1" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-outputs"><i class="fa fa-tag"></i>number of outputs</label>
+		<input type="number" id="node-input-outputs" placeholder="1" />
+	</div>
+</script>

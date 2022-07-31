@@ -1,0 +1,116 @@
+<script type="text/javascript">
+	RED.nodes.registerType('relinKey', {
+		category: 'config',
+		defaults: {
+			name: { value: 'relinKey', required: true },
+			originContextNode: { value: '' },
+			relinKeyBase64: { value: '' },
+			isUpload: { value: false },
+		},
+		label: function () {
+			return this.name;
+		},
+		oneditprepare: function () {
+			const id = this.id;
+			const contextNodes = [];
+			var relinKeyBase64 = this.relinKeyBase64;
+
+			RED.nodes.eachConfig(function (configNode) {
+				if (configNode.type === 'context') {
+					contextNodes.push({ value: configNode.id, label: configNode.name });
+				}
+			});
+
+			$('#node-config-input-originContextNode').typedInput({
+				types: [
+					{
+						value: 'originContextNode',
+						options: contextNodes,
+					},
+				],
+			});
+
+			$('#upload').hide();
+			$('#node-config-input-sealNode').hide();
+			$('#node-config-input-isUpload').hide();
+
+			$('#upload-button').click(function () {
+				$('#node-config-input-isUpload').prop('checked', true);
+				$('#upload').show();
+				$('#context').hide();
+			});
+
+			$('#context-button').click(function () {
+				$('#node-config-input-isUpload').prop('checked', false);
+				$('#context').show();
+				$('#upload').hide();
+			});
+
+			$('#download-button').click(function () {
+				$.getJSON(`/relinKey/${id}`)
+					.then(data => {
+						$('<a/>', {
+							download: `[${data._name}] relinKeyBase64` + '.txt',
+							href: `data:text/plain;charset=utf-8,${data.relinKeyBase64}`,
+						})
+							.appendTo('body')[0]
+							.click();
+						$(window).one('focus', function () {
+							$('a').last().remove();
+						});
+					})
+					.catch(err => {
+						//todo
+						console.error(err);
+					});
+			});
+
+			$('#node-config-relinKeyBase64').change(function () {
+				const [file] = this.files;
+				const fr = new FileReader();
+				fr.addEventListener(
+					'load',
+					() => {
+						relinKeyBase64 = fr.result;
+						$('#node-config-input-relinKeyBase64').val(relinKeyBase64);
+					},
+					false,
+				);
+
+				if (file) {
+					fr.readAsText(file);
+				}
+			});
+		},
+		oneditsave: function () {
+			// if (!$('node-config-input-isUpload').prop('checked')) {
+			// 	const contextNodeId = $('#node-config-input-originContextNode').val();
+			// 	$.getJSON(`/context/publicKey/${contextNodeId}`).then(data => {
+			// 		console.log(data);
+			// 	});
+			// }
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="relinKey">
+	<input type="checkbox" id="node-config-input-isUpload" />
+	<div class="form-row">
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+		<input type="text" id="node-config-input-name" />
+	</div>
+	<div class="form-row">
+		<button type="button" class="red-ui-button" id="upload-button">Upload</button>
+		<button type="button" class="red-ui-button" id="context-button">Config</button>
+		<button type="button" class="red-ui-button" id="download-button">Download</button>
+	</div>
+
+	<div id="context">
+		<input type="text" id="node-config-input-originContextNode" />
+	</div>
+
+	<div id="upload">
+		<input type="file" id="node-config-relinKeyBase64" /><br />
+		<input type="text" id="node-config-input-relinKeyBase64" />
+	</div>
+</script>
