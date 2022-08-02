@@ -112,7 +112,6 @@ module.exports = function (RED) {
 						text: `ChainIndex: ${chainIndex}`,
 					});
 
-					msg.exactResult = newExact;
 					msg.latestNodeId = config.id;
 					msg.payload = { cipherText: resultCipher };
 					const msgArray = [msg];

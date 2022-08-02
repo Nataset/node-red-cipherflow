@@ -31,7 +31,7 @@ module.exports = function (RED) {
 					const result = encoder.decode(plainText);
 
 					msg.payload = result;
-					if (node.showToDebug) {
+					if (config.showToDebug) {
 						// show first 10 value in array to node-red debug page
 						node.warn(result.slice(0, 10));
 					}
