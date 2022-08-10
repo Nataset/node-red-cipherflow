@@ -33,7 +33,7 @@
 			});
 
 			$('#download-button').click(function () {
-				$.getJSON(`/parms/${id}`)
+				$.getJSON(`${RED.settings.httpNodeRoot}/parms/${id}`)
 					.then(data => {
 						// context data will contain parms of CKKS seal context data and relinKey of the context
 						const exportData = `${data.parmsBase64}----------relinKey----------${data.relinKeyBase64}`;

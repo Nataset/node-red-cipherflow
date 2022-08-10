@@ -55,7 +55,7 @@
 			});
 
 			$('#download-button').click(function () {
-				$.getJSON(`/publicKey/${id}`)
+				$.getJSON(`${RED.settings.httpNodeRoot}/publicKey/${id}`)
 					.then(data => {
 						$('<a/>', {
 							download: `[${data._name}] publicKeyBase64` + '.txt',
