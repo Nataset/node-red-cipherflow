@@ -13,7 +13,8 @@
 		oneditprepare: function () {
 			const id = this.id;
 			const contextNodes = [];
-			var relinKeyBase64 = this.relinKeyBase64;
+			const isUpload = this.isUpload;
+			const relinKeyBase64 = this.relinKeyBase64;
 
 			RED.nodes.eachConfig(function (configNode) {
 				if (configNode.type === 'context') {
@@ -29,6 +30,14 @@
 					},
 				],
 			});
+
+			if (isUpload) {
+				$('#upload').show();
+				$('#context').hide();
+			} else {
+				$('#context').show();
+				$('#upload').hide();
+			}
 
 			$('#upload').hide();
 			$('#node-config-input-sealNode').hide();

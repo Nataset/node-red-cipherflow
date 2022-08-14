@@ -1,8 +1,8 @@
 /* 
-    Exponentiation ciphertext with base is ciphertext and an exponent n for html page
-    ---use n-1 chainIndex---
-    input: ciphertext in msg.payload
-    output: exponented result ciphertext in msg.payload
+	Exponentiation ciphertext with base is ciphertext and an exponent n for html page
+	---use n-1 chainIndex---
+	input: ciphertext in msg.payload
+	output: exponented result ciphertext in msg.payload
 */
 
 module.exports = function (RED) {
@@ -10,6 +10,11 @@ module.exports = function (RED) {
 
 	function exponent(config) {
 		RED.nodes.createNode(this, config);
+
+		const globalContext = this.context().global;
+		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		const outputs = config.outputs;
 		// get n from html page;
@@ -28,6 +33,7 @@ module.exports = function (RED) {
 		node.on('input', function (msg) {
 			// get seal objects from config node
 			const contextNode = RED.nodes.getNode(msg.context.contextNodeId);
+			const relinKeyNode = RED.nodes.getNode(msg.relinKey.relinKeyNodeId);
 
 			try {
 				if (!contextNode) {
@@ -40,7 +46,7 @@ module.exports = function (RED) {
 					// declare variable for power the ciphertext
 					const context = contextNode.context;
 					const evaluator = contextNode.evaluator;
-					const relinKey = contextNode.relinKey;
+					const relinKey = relinKeyNode.relinKey;
 					const scale = contextNode.scale;
 
 					// clone ciphertext prevent race condition

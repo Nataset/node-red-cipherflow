@@ -1,14 +1,19 @@
 /* 
-    multiply known value to the ciphertext
-    ---use 1 chainIndex---
-    input: ciphertext in msg.payload
-    output: multiplied result ciphertext in msg.payload
+	multiply known value to the ciphertext
+	---use 1 chainIndex---
+	input: ciphertext in msg.payload
+	output: multiplied result ciphertext in msg.payload
 */
 module.exports = function (RED) {
 	const { getChainIndex } = require('../../util/getDetail.js');
 
 	function multiPlain(config) {
 		RED.nodes.createNode(this, config);
+
+		const globalContext = this.context().global;
+		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		// get value from node html page
 		const value = parseFloat(config.value);
@@ -26,6 +31,7 @@ module.exports = function (RED) {
 		node.on('input', function (msg) {
 			// get seal objects from config node
 			const contextNode = RED.nodes.getNode(msg.context.contextNodeId);
+			const relinKeyNode = RED.nodes.getNode(msg.relinKey.relinKeyNodeId);
 
 			try {
 				if (!contextNode) {
@@ -42,7 +48,7 @@ module.exports = function (RED) {
 					const encoder = contextNode.encoder;
 					const evaluator = contextNode.evaluator;
 					const scale = contextNode.scale;
-					const relinKey = contextNode.relinKey;
+					const relinKey = relinKeyNode.relinKey;
 
 					// encode value to plaintext before multiply to ciphertext
 					const array = Float64Array.from({ length: encoder.slotCount }, () => value);

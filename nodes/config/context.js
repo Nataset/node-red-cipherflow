@@ -1,14 +1,17 @@
-module.exports = function (RED) {
+module.exports = async function (RED) {
+	const random = require('randomstring');
 	function contextHandle(config) {
 		RED.nodes.createNode(this, config);
+		const keyId = random.generate(4);
+		const nodeContext = this.context();
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
 
 		const schemeType = seal.SchemeType.ckks;
 		const securityLevel = seal.SecurityLevel.none;
-		const parms = seal.EncryptionParameters(schemeType);
-		let relinKey = seal.RelinKeys();
-		let context = undefined;
+		let parms = seal.EncryptionParameters(schemeType);
 
 		if (!config.isUpload) {
 			const polyModulusDegree = config.polyModulus;
@@ -24,42 +27,46 @@ module.exports = function (RED) {
 				securityLevel, // Enforce a security level
 			);
 		} else if (config.isUpload && config.importData !== '') {
-			const [parmsBase64, relinKeyBase64] = config.importData.split(
-				'----------relinKey----------',
-			);
-
+			parmsBase64 = config.importData;
 			parms.load(parmsBase64);
-			context = seal.Context(parms, false, securityLevel);
-			relinKey.load(context, relinKeyBase64);
+			context = seal.Context(parms, true, securityLevel);
 		} else {
 			//todo
 			console.log(`did't upload importData`);
 			return;
 		}
+
 		const encoder = seal.CKKSEncoder(context);
 		const evaluator = seal.Evaluator(context);
-
 		const keyGenerator = seal.KeyGenerator(context);
 		const secretKey = keyGenerator.secretKey();
-		const publicKey = keyGenerator.createPublicKey();
-		if (!config.isUpload) relinKey = keyGenerator.createRelinKeys();
+		const publicKeySerial = keyGenerator.createPublicKeySerializable();
+		const relinKeySerial = keyGenerator.createRelinKeysSerializable();
+		const publicKeyBase64 = publicKeySerial.save();
+		const relinKeyBase64 = relinKeySerial.save();
 
 		this.context = context;
 		this.parms = parms;
 		this.keyGenerator = keyGenerator;
 		this.secretKey = secretKey;
-		this.publicKey = publicKey;
-		this.relinKey = relinKey;
+		this.publicKeyBase64 = publicKeyBase64;
+		this.relinKeyBase64 = relinKeyBase64;
 		this.scale = Math.pow(2, config.scale);
 		this.encoder = encoder;
 		this.evaluator = evaluator;
+		this.keyId = keyId;
 
-		RED.httpNode.get(`/parms/${config.id}`, function (req, res) {
+		nodeContext.set('config', config);
+		nodeContext.set('parms', parms);
+
+		RED.httpNode.get(`/parms/${config.id}`, (req, res) => {
+			const config = nodeContext.get('config');
+			const parms = nodeContext.get('parms');
+
 			res.json({
 				_name: config.name,
 				_id: config.id,
 				parmsBase64: parms.save(),
-				relinKeyBase64: relinKey.save(),
 			});
 		});
 
@@ -67,13 +74,17 @@ module.exports = function (RED) {
 			context.delete();
 			parms.delete();
 			keyGenerator.delete();
-			this.secretKey.delete();
-			this.publicKey.delete();
-			this.relinKey.delete();
+			secretKey.delete();
+			publicKeySerial.delete();
+			relinKeySerial.delete();
+			publicKeyBase64.delete();
+			relinKeyBase64.delete();
 
 			delete this;
 			done();
 		});
+
+
 	}
 	RED.nodes.registerType('context', contextHandle);
 };

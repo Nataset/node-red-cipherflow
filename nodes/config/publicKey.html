@@ -4,17 +4,37 @@
 		defaults: {
 			name: { value: 'publicKey', required: true },
 			originContextNode: { value: '' },
-			publicKeyBase64: { value: '' },
+			importData: { value: '' },
 			isUpload: { value: false },
 		},
 		label: function () {
 			return this.name;
 		},
 		oneditprepare: function () {
+			const parseKey = {
+				lineLength: 64,
+				beginParms: '|------------------------BEGIN PARMS---------------------------|',
+				beginKeyId: '|------------------------BEGIN KEYID---------------------------|',
+				beginPbKey: '|------------------------BEGIN PBKEY---------------------------|',
+				exportPublicKey: function (keyId, parmsBase64, publicKeyBase64) {
+					console.log(this.lineLength);
+					let exportText = '';
+					exportText += this.beginKeyId + '\n';
+					exportText += keyId + '\n';
+					exportText += this.beginParms + '\n';
+					exportText += this.stringLengthLimter(parmsBase64, this.lineLength);
+					exportText += this.beginPbKey + '\n';
+					exportText += this.stringLengthLimter(publicKeyBase64, this.lineLength);
+					return exportText[exportText.length - 1] === '\n'
+						? exportText.slice(0, -1)
+						: exportText;
+				},
+			};
+
 			const id = this.id;
 			const contextNodes = [];
 			const isUpload = this.isUpload;
-			var publicKeyBase64 = this.publicKeyBase64;
+			var importData = this.importData;
 
 			RED.nodes.eachConfig(function (configNode) {
 				if (configNode.type === 'context') {
@@ -55,11 +75,21 @@
 			});
 
 			$('#download-button').click(function () {
-				$.getJSON(`${RED.settings.httpNodeRoot}/publicKey/${id}`)
+				$.getJSON(
+					`${
+						RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
+					}/publicKey/${id}`,
+				)
 					.then(data => {
+						const exportData = parseKey.exportPublicKey(
+							data.keyId,
+							data.parmsBase64,
+							data.publicKeyBase64,
+						);
+
 						$('<a/>', {
-							download: `[${data._name}] publicKeyBase64` + '.txt',
-							href: `data:text/plain;charset=utf-8,${data.publicKeyBase64}`,
+							download: `[${data._name}] publicKey` + '.txt',
+							href: `data:text/plain;charset=utf-8,${exportData}`,
 						})
 							.appendTo('body')[0]
 							.click();
@@ -73,14 +103,15 @@
 					});
 			});
 
-			$('#node-config-publicKeyBase64').change(function () {
+			$('#node-config-importData').change(function () {
 				const [file] = this.files;
 				const fr = new FileReader();
 				fr.addEventListener(
 					'load',
 					() => {
-						publicKeyBase64 = fr.result;
-						$('#node-config-input-publicKeyBase64').val(publicKeyBase64);
+						importData = fr.result;
+						$('#node-config-input-importData').val(importData);
+						console.log('TESTTESTESTSET');
 					},
 					false,
 				);
@@ -111,7 +142,7 @@
 	</div>
 
 	<div id="upload">
-		<input type="file" id="node-config-publicKeyBase64" /><br />
-		<input type="text" id="node-config-input-publicKeyBase64" />
+		<input type="file" id="node-config-importData" /><br />
+		<input type="text" id="node-config-input-importData" />
 	</div>
 </script>

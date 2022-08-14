@@ -1,6 +1,6 @@
 {
 	"name": "node-red-cipherflow",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"description": "microsoft seal for Node-RED.",
 	"main": "nodes/ckks/ckks-encrypt.js",
 	"keywords": [
@@ -21,6 +21,7 @@
 			"context": "nodes/config/context.js",
 			"publicKey": "nodes/config/publicKey.js",
 			"secretKey": "nodes/config/secretKey.js",
+			"relinKey": "nodes/config/relinKey.js",
 			"encrypt": "nodes/encode/encrypt.js",
 			"decrypt": "nodes/encode/decrypt.js",
 			"setContext": "nodes/encode/setContext.js",
@@ -36,6 +37,7 @@
 	},
 	"dependencies": {
 		"node-seal": "^5.0.0",
+		"randomstring": "^1.2.2",
 		"uuid": "^8.3.2"
 	}
 }

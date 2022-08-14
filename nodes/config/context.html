@@ -15,8 +15,16 @@
 		},
 		oneditprepare: function () {
 			const id = this.id;
+			const isUpload = this.isUpload;
 
-			$('#upload').hide();
+			if (isUpload) {
+				$('#upload').show();
+				$('#config').hide();
+			} else {
+				$('#config').show();
+				$('#upload').hide();
+			}
+
 			$('#node-config-input-sealNode').hide();
 			$('#node-config-input-isUpload').hide();
 
@@ -33,14 +41,15 @@
 			});
 
 			$('#download-button').click(function () {
-				$.getJSON(`${RED.settings.httpNodeRoot}/parms/${id}`)
+				$.getJSON(
+					`${
+						RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
+					}/parms/${id}`,
+				)
 					.then(data => {
-						// context data will contain parms of CKKS seal context data and relinKey of the context
-						const exportData = `${data.parmsBase64}----------relinKey----------${data.relinKeyBase64}`;
-
 						$('<a/>', {
 							download: `[${data._name}] parmsBase64` + '.txt',
-							href: `data:text/plain;charset=utf-8,${exportData}`,
+							href: `data:text/plain;charset=utf-8,${data.parmsBase64}`,
 						})
 							.appendTo('body')[0]
 							.click();

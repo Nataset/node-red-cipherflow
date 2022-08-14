@@ -1,16 +1,19 @@
 /* 
-    add known value to the ciphertext
-    ---use 0 chainIndex---
-    input: ciphertext in msg.payload
-    output: added result ciphertext in msg.payload
+	add known value to the ciphertext
+	---use 0 chainIndex---
+	input: ciphertext in msg.payload
+	output: added result ciphertext in msg.payload
 */
 module.exports = function (RED) {
 	const { getChainIndex } = require('../../util/getDetail.js');
 
 	function addPlain(config) {
 		RED.nodes.createNode(this, config);
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		const outputs = config.outputs;
 		// get value from this node html page

@@ -3,8 +3,11 @@ module.exports = function (RED) {
 
 	function add(config) {
 		RED.nodes.createNode(this, config);
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		const outputs = config.outputs;
 		// get node context(like global store in node) for manage multiple input
@@ -95,15 +98,15 @@ module.exports = function (RED) {
 					const secondChainIndex = getChainIndex(secondCipher, context);
 					firstChainIndex - secondChainIndex > 0
 						? evaluator.cipherModSwitchTo(
-								firstCipher,
-								secondCipher.parmsId,
-								firstCipher,
-						  )
+							firstCipher,
+							secondCipher.parmsId,
+							firstCipher,
+						)
 						: evaluator.cipherModSwitchTo(
-								secondCipher,
-								firstCipher.parmsId,
-								secondCipher,
-						  );
+							secondCipher,
+							firstCipher.parmsId,
+							secondCipher,
+						);
 
 					const resultCipher = evaluator.add(firstCipher, secondCipher);
 					const chainIndex = getChainIndex(resultCipher, context);

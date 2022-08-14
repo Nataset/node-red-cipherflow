@@ -1,8 +1,8 @@
 /*
-    inverse input ciphertext main propose to divide ciphertext with ciphertext using multi(E) node
-    ---use 6 chainIndex---
-    input: ciphertext in msg.payload
-    output: inversed result ciphertext in msg.payload
+	inverse input ciphertext main propose to divide ciphertext with ciphertext using multi(E) node
+	---use 6 chainIndex---
+	input: ciphertext in msg.payload
+	output: inversed result ciphertext in msg.payload
 */
 
 module.exports = function (RED) {
@@ -10,8 +10,11 @@ module.exports = function (RED) {
 
 	function inverse(config) {
 		RED.nodes.createNode(this, config);
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		// get max and min possible value from html page;
 		const max = parseFloat(config.maxInput);
@@ -30,6 +33,7 @@ module.exports = function (RED) {
 		node.on('input', function (msg) {
 			// get seal objects from config node
 			const contextNode = RED.nodes.getNode(msg.context.contextNodeId);
+			const relinKeyNode = RED.nodes.getNode(msg.relinKey.relinKeyNodeId);
 
 			try {
 				if (!contextNode) {
@@ -47,7 +51,7 @@ module.exports = function (RED) {
 				const evaluator = contextNode.evaluator;
 				const context = contextNode.context;
 				const encoder = contextNode.encoder;
-				const relinKey = contextNode.relinKey;
+				const relinKey = relinKeyNode.relinKey;
 				const scale = contextNode.scale;
 				const d = 3;
 

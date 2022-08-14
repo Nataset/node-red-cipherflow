@@ -1,8 +1,8 @@
 /*
-    negate ciphertext input value
-    ---use 0 chainIndex---
-    input: ciphertext in msg.payload
-    output: negated result ciphertext in msg.payload
+	negate ciphertext input value
+	---use 0 chainIndex---
+	input: ciphertext in msg.payload
+	output: negated result ciphertext in msg.payload
 */
 
 module.exports = function (RED) {
@@ -10,6 +10,11 @@ module.exports = function (RED) {
 
 	function negate(config) {
 		RED.nodes.createNode(this, config);
+
+		const globalContext = this.context().global;
+		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 		const outputs = parseInt(config.outputs);
 		// node status show grey ring when first create

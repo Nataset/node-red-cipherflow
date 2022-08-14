@@ -3,9 +3,12 @@ module.exports = function (RED) {
 
 	function multi(config) {
 		RED.nodes.createNode(this, config);
-		const node = this;
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
+
+		const node = this;
 		// get node context(like global store in node) for manage multiple input
 		const nodeContext = node.context();
 		const outputs = parseInt(config.outputs);
@@ -21,6 +24,7 @@ module.exports = function (RED) {
 		node.on('input', function (msg) {
 			// get seal objects from config node
 			const contextNode = RED.nodes.getNode(msg.context.contextNodeId);
+			const relinKeyNode = RED.nodes.getNode(msg.relinKey.relinKeyNodeId);
 
 			try {
 				if (!contextNode) {
@@ -74,7 +78,7 @@ module.exports = function (RED) {
 
 					const context = contextNode.context;
 					const evaluator = contextNode.evaluator;
-					const relinKey = contextNode.relinKey;
+					const relinKey = relinKeyNode.relinKey;
 					const scale = contextNode.scale;
 
 					// equal fisrtCipher chainIndex to secondCipher chainIndex
@@ -82,15 +86,15 @@ module.exports = function (RED) {
 					const secondChainIndex = getChainIndex(secondCipher, context);
 					firstChainIndex - secondChainIndex > 0
 						? evaluator.cipherModSwitchTo(
-								firstCipher,
-								secondCipher.parmsId,
-								firstCipher,
-						  )
+							firstCipher,
+							secondCipher.parmsId,
+							firstCipher,
+						)
 						: evaluator.cipherModSwitchTo(
-								secondCipher,
-								firstCipher.parmsId,
-								secondCipher,
-						  );
+							secondCipher,
+							firstCipher.parmsId,
+							secondCipher,
+						);
 
 					// multiply firstCipher and secondCipher
 					const resultCipher = evaluator.multiply(firstCipher, secondCipher);

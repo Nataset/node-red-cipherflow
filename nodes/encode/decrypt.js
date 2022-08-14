@@ -1,8 +1,11 @@
 module.exports = function (RED) {
 	function decryptHandle(config) {
 		RED.nodes.createNode(this, config);
+
 		const globalContext = this.context().global;
 		const seal = globalContext.get('seal');
+		if (!seal) return
+
 		const node = this;
 
 		node.on('input', function (msg) {
