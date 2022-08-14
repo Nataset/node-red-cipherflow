@@ -94,7 +94,11 @@
 			});
 
 			$('#download-button').click(function () {
-				$.getJSON(`/relinKey/${id}`)
+				$.getJSON(
+					`${
+						RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
+					}/relinKey/${id}`,
+				)
 					.then(data => {
 						const exportData = parseKey.exportRelinKey(
 							data.keyId,
