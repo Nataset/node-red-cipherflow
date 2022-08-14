@@ -91,7 +91,7 @@ module.exports = function (RED) {
 
 					// declare variable for add two ciphertext
 					const context = contextNode.context;
-					const evaluator = seal.Evaluator(context);
+					const evaluator = contextNode.evaluator;
 
 					// equal fisrtCipher chainIndex to secondCipher chainIndex
 					const firstChainIndex = getChainIndex(firstCipher, context);

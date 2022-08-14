@@ -14,22 +14,17 @@ module.exports = function (RED) {
 		if (!seal) return
 
 		const node = this;
-
-
 		// get value from this node html page
 		const value = parseFloat(config.value);
-
-		if (typeof seal == undefined)
-
-			// show value in the node status below the node if didn't value will show error in status
-			if (!value) {
-				const err = new Error('variable Value field is empty');
-				node.error(err);
-				node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-				return;
-			} else {
-				node.status({ fill: 'blue', shape: 'ring', text: `Value: ${value}` });
-			}
+		// show value in the node status below the node if didn't value will show error in status
+		if (!value) {
+			const err = new Error('variable Value field is empty');
+			node.error(err);
+			node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+			return;
+		} else {
+			node.status({ fill: 'blue', shape: 'ring', text: `Value: ${value}` });
+		}
 
 		node.on('input', function (msg) {
 			// get seal object from config node by useing config node id that passed from injectContext node
@@ -65,10 +60,6 @@ module.exports = function (RED) {
 
 					msg.context = { contextNodeId: contextNode.id };
 					msg.relinKey = { relinKeyNodeId: relinKeyNode.id }
-
-					const relinKey = seal.RelinKeys();
-					relinKey.load(contextNode.context, relinKeyNode.relinKeyBase64);
-					relinKeyNode.relinKey = relinKey;
 
 					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
 					msg.latestNodeId = config.id;

@@ -75,10 +75,10 @@ module.exports = function (RED) {
 					for (i = 1; i < outputs; i++) {
 						const newMsg = { ...msg };
 						newMsg.payload = { cipherText: cipherText.clone() };
-						msgArray.push(newMsg, false);
+						msgArray.push(newMsg);
 					}
 
-					node.send(msgArray);
+					node.send(msgArray, false);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					inputCipher.delete();

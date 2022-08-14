@@ -10,37 +10,44 @@ module.exports = function (RED) {
 		const nodeContext = this.context();
 		const originContextNode = RED.nodes.getNode(config.originContextNode);
 
+		try {
+			if (config.isUpload == false && originContextNode !== undefined) {
+				this.keyId = originContextNode.keyId;
+				this.publicKey = seal.PublicKey();
+				this.publicKey.load(originContextNode.context, originContextNode.publicKeyBase64);
+				this.publicKeyBase64 = originContextNode.publicKeyBase64;
+				this.parmsBase64 = originContextNode.parms.save();
+			} else if (config.isUpload == true) {
+				try {
+					const { keyId, parmsBase64, publicKeyBase64 } = parseKey.parsePublicKey(config.importData);
+					const parms = seal.EncryptionParameters(seal.SchemeType.ckks);
+					parms.load(parmsBase64);
 
-		if (config.isUpload == false && originContextNode !== undefined) {
-			this.keyId = originContextNode.keyId;
-			this.publicKey = seal.PublicKey();
-			this.publicKey.load(originContextNode.context, originContextNode.publicKeyBase64);
-			this.publicKeyBase64 = originContextNode.publicKeyBase64;
-			this.parmsBase64 = originContextNode.parms.save();
+					const context = seal.Context(
+						parms, // Encryption Parameters
+						true, // ExpandModChain
+						seal.SecurityLevel.none, // Enforce a security level
+					);
+					this.keyId = keyId
+					this.publicKey = seal.PublicKey();
+					this.publicKey.load(context, publicKeyBase64);
+					this.publicKeyBase64 = publicKeyBase64;
+					this.parmsBase64 = parmsBase64
 
-		} else if (config.isUpload == true) {
-			const { keyId, parmsBase64, publicKeyBase64 } = config.importData
-			const parms = seal.EncryptionParameters(seal.SchemeType.ckks);
-			parms.load(parmsBase64);
+					parms.delete();
+					context.delete();
+					delete parms;
+					delete context;
+				} catch (err) {
+					throw new Error('Import Public Key Fail')
+				}
+			} else {
+				//todo
+				console.log('originContextNode is undefind');
+			}
 
-			const context = seal.Context(
-				parms, // Encryption Parameters
-				true, // ExpandModChain
-				seal.SecurityLevel.none, // Enforce a security level
-			);
-			this.keyId = keyId
-			this.publicKey = seal.PublicKey();
-			this.publicKey.load(context, parms);
-			this.publicKeyBase64 = publicKeyBase64;
-			this.parmsBase64 = parmsBase64
-
-			parms.delete();
-			context.delete();
-			delete parms;
-			delete context;
-		} else {
-			//todo
-			console.log('originContextNode is undefind');
+		} catch (err) {
+			console.error(err);
 		}
 
 		nodeContext.set('config', config);

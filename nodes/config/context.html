@@ -48,7 +48,7 @@
 				)
 					.then(data => {
 						$('<a/>', {
-							download: `[${data._name}] parmsBase64` + '.txt',
+							download: `[${data._name}] CONTEXT-KEYID_${data.keyId}` + '.txt',
 							href: `data:text/plain;charset=utf-8,${data.parmsBase64}`,
 						})
 							.appendTo('body')[0]

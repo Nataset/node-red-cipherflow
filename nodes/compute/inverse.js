@@ -18,15 +18,15 @@ module.exports = function (RED) {
 		const node = this;
 		// get max and min possible value from html page;
 		const max = parseFloat(config.maxInput);
-		const min = parseFloat(config.minInput);
+		// const min = parseFloat(config.minInput);
 		const outputs = parseInt(config.outputs);
 		// if max less than min show error
-		if (max < min) {
-			const err = new Error(`maximum value can't less than minimum value`);
-			node.error(err);
-			node.status({ fill: 'red', shape: 'dot', text: err.toString() });
-			return;
-		}
+		// if (max < min) {
+		// 	const err = new Error(`maximum value can't less than minimum value`);
+		// 	node.error(err);
+		// 	node.status({ fill: 'red', shape: 'dot', text: err.toString() });
+		// 	return;
+		// }
 		// show what min and max above to node status (default min, max are defind in html)
 		node.status({ fill: 'blue', shape: 'ring', text: `min: ${min}, max: ${max}` });
 

@@ -24,10 +24,7 @@ module.exports = function (RED) {
 					//get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
 					const scale = contextNode.scale;
-					const publicKeyBase64 = publicKeyNode.publicKeyBase64;
-
-					const publicKey = seal.PublicKey();
-					publicKey.load(context, publicKeyBase64);
+					const publicKey = publicKeyNode.publicKey;
 
 					const encoder = contextNode.encoder;
 					const encryptor = seal.Encryptor(context, publicKey);

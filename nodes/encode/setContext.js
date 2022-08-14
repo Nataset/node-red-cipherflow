@@ -22,10 +22,6 @@ module.exports = function (RED) {
 					msg.relinKey = { relinKeyNodeId: relinKeyNode.id };
 					msg.latestNodeId = config.id;
 
-					const relinKey = seal.RelinKeys();
-					relinKey.load(contextNode.context, relinKey.relinKeyBase64);
-					relinKeyNode.relinKey = relinKey;
-
 					node.send(msg, false);
 				}
 			} catch (err) {
