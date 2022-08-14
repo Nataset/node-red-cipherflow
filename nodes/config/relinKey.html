@@ -47,7 +47,7 @@
 					exportText += keyId + '\n';
 					exportText += this.beginParms + '\n';
 					exportText += this.stringLengthLimter(parmsBase64, this.lineLength);
-					exportText += this.beginPbKey + '\n';
+					exportText += this.beginRlKey + '\n';
 					exportText += this.stringLengthLimter(relinKeyBase64, this.lineLength);
 					return exportText[exportText.length - 1] === '\n'
 						? exportText.slice(0, -1)

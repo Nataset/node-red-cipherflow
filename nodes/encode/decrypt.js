@@ -39,8 +39,6 @@ module.exports = function (RED) {
 
 					// delete unuse seal instance prevent out of wasm memory error
 					inputCipher.delete();
-					secretKey.delete();
-					encoder.delete();
 					decryptor.delete();
 					plainText.delete();
 					cipherText.delete();

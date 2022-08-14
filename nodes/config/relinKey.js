@@ -29,6 +29,8 @@ module.exports = function (RED) {
 						true, // ExpandModChain
 						seal.SecurityLevel.none, // Enforce a security level
 					);
+
+
 					this.keyId = keyId
 					this.relinKey = seal.RelinKeys();
 					this.relinKey.load(context, relinKeyBase64);

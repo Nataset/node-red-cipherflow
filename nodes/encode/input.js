@@ -75,6 +75,7 @@ module.exports = function (RED) {
 					node.send(msg, false);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
+					encryptor.delete();
 					plainText.delete();
 				}
 			} catch (err) {

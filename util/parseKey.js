@@ -58,8 +58,8 @@ module.exports = {
     parseSecretKey: function (importSecretKey) {
 
         const keyId = importSecretKey.split('\n', 2)[1]
-        const parmsBase64 = importSecretKey.split(this.beginParms, 2)[1].split(this.beginPbKey)[0].replace(/\r?\n|\r/g, '');
-        const secretKeyBase64 = importSecretKey.split(this.beginPbKey)[1].replace(/\r?\n|\r/g, '');
+        const parmsBase64 = importSecretKey.split(this.beginParms, 2)[1].split(this.beginScKey)[0].replace(/\r?\n|\r/g, '');
+        const secretKeyBase64 = importSecretKey.split(this.beginScKey)[1].replace(/\r?\n|\r/g, '');
 
         return { keyId, parmsBase64, secretKeyBase64 };
     },
@@ -71,7 +71,7 @@ module.exports = {
         exportText += keyId + '\n'
         exportText += this.beginParms + '\n';
         exportText += this.stringLengthLimter(parmsBase64, this.lineLength);
-        exportText += this.beginPbKey + '\n';
+        exportText += this.beginRlKey + '\n';
         exportText += this.stringLengthLimter(relinKeyBase64, this.lineLength);
         return exportText[exportText.length - 1] === '\n' ? exportText.slice(0, -1) : exportText
     },
@@ -79,8 +79,8 @@ module.exports = {
     parseRelinKey: function (importRelinKey) {
 
         const keyId = importRelinKey.split('\n', 2)[1]
-        const parmsBase64 = importRelinKey.split(this.beginParms)[1].split(this.beginPbKey)[0].replace(/\r?\n|\r/g, '');
-        const relinKeyBase64 = importRelinKey.split(this.beginPbKey)[1].replace(/\r?\n|\r/g, '');
+        const parmsBase64 = importRelinKey.split(this.beginParms)[1].split(this.beginRlKey)[0].replace(/\r?\n|\r/g, '');
+        const relinKeyBase64 = importRelinKey.split(this.beginRlKey)[1].replace(/\r?\n|\r/g, '');
 
         return { keyId, parmsBase64, relinKeyBase64 };
     },

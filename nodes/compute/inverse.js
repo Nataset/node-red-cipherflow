@@ -28,7 +28,7 @@ module.exports = function (RED) {
 		// 	return;
 		// }
 		// show what min and max above to node status (default min, max are defind in html)
-		node.status({ fill: 'blue', shape: 'ring', text: `min: ${min}, max: ${max}` });
+		node.status({ fill: 'blue', shape: 'ring', text: `min: ${0}, max: ${max}` });
 
 		node.on('input', function (msg) {
 			// get seal objects from config node
