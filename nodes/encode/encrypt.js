@@ -48,7 +48,6 @@ module.exports = function (RED) {
 					});
 					node.send(msg, false);
 					// delete unuse instance of seal objects prevent out of wasm memory error
-					publicKey.delete();
 					plainText.delete();
 				}
 			} catch (err) {
