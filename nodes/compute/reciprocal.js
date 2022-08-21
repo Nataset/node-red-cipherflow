@@ -1,14 +1,14 @@
 /*
-	inverse input ciphertext main propose to divide ciphertext with ciphertext using multi(E) node
+	reciprocal input ciphertext main propose to divide ciphertext with ciphertext using multi(E) node
 	---use 6 chainIndex---
 	input: ciphertext in msg.payload
-	output: inversed result ciphertext in msg.payload
+	output: reciprocald result ciphertext in msg.payload
 */
 
 module.exports = function (RED) {
 	const { getChainIndex } = require('../../util/getDetail.js');
 
-	function inverse(config) {
+	function reciprocal(config) {
 		RED.nodes.createNode(this, config);
 
 		const globalContext = this.context().global;
@@ -47,7 +47,7 @@ module.exports = function (RED) {
 				const inputCipher = msg.payload.cipherText;
 				const cipherText = inputCipher.clone();
 
-				// declare variable seal object for needed to inverse ciphertext for easy access
+				// declare variable seal object for needed to reciprocal ciphertext for easy access
 				const evaluator = contextNode.evaluator;
 				const context = contextNode.context;
 				const encoder = contextNode.encoder;
@@ -160,5 +160,5 @@ module.exports = function (RED) {
 		});
 	}
 
-	RED.nodes.registerType('inverse', inverse);
+	RED.nodes.registerType('reciprocal', reciprocal);
 };

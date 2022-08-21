@@ -8,18 +8,67 @@ module.exports = function (RED) {
 		const seal = globalContext.get('seal');
 		if (!seal) return
 
+		const nodeContext = this.context();
+		nodeContext.set('numberArray', []);
+
 		const node = this;
 
+		// check value in node config
+		try {
+
+			if (!config.context) {
+				throw new Error(`didn't select context`)
+
+			} else if (!config.publicKey) {
+				throw new Error(`didn't select publickey`)
+			} else if (!config.msgKey) {
+				throw new Error(`didn't set received msg key`)
+			} else if (!config.numberArrayLength) {
+				throw new Error(`didn't set number length`)
+			}
+		} catch (err) {
+			node.error(err);
+			node.status({ fill: 'red', shape: 'ring', text: err });
+		}
+
 		node.on('input', function (msg) {
+			const numberArray = nodeContext.get('numberArray');
 			const contextNode = RED.nodes.getNode(config.context);
 			const publicKeyNode = RED.nodes.getNode(config.publicKey);
 
-			const value = parseFloat(msg.payload);
+			// handle input type of number or array
+			let payload;
 			try {
+				if (config.isReceivedNumber === 'true') {
+					// if input isn't number show error to node status
+					if (typeof msg[config.msgKey] !== 'number') {
+						throw new Error(`msg.${config.msgKey} isn't number`);
+					}
+
+					// push new number in msg.payload(or value in config.msgKey) to the numberArray
+					numberArray.push(parseFloat(msg[config.msgKey]));
+
+					// if numberArray size is less than value that user set save array and waiting for another input
+					if (numberArray.length < config.numberArrayLength) {
+						nodeContext.set('numberArray', numberArray);
+						node.status({ fill: 'blue', shape: 'ring', text: `waiting ${numberArray.length}/${config.numberArrayLength}` });
+						return
+						// else set numberArray to empty array and continue
+					} else {
+						nodeContext.set('numberArray', []);
+						payload = numberArray
+					}
+				} else {
+					if (!Array.isArray(msg[config.msgKey])) {
+						throw new Error(`msg.${config.msgKey} isn't array`);
+					}
+					payload = msg[config.msgKey]
+				}
+
 				if (!contextNode) {
 					throw new Error(`SEAL Context Node not found`);
 				} else if (!publicKeyNode) {
-					throw new Error(`PublicKey Node not found`);
+					throw new Error(`PublicKey node not found`);
 				} else {
 					//get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
@@ -29,8 +78,12 @@ module.exports = function (RED) {
 					const encoder = contextNode.encoder;
 					const encryptor = seal.Encryptor(context, publicKey);
 
+					if (payload.length > encoder.slotCount) {
+						throw new Error('input array length is longer than context can handle');
+					}
+
 					// create array that all index equal value for html and encoder.slotCount(polyModulus / 2) long;
-					const array = Float64Array.from({ length: encoder.slotCount }, () => value);
+					const array = Float64Array.from({ length: encoder.slotCount }, (_, i) => payload[i] ? payload[i] : 0);
 					const plainText = encoder.encode(array, scale);
 					const cipherText = encryptor.encrypt(plainText);
 

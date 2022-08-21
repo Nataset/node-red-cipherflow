@@ -1,9 +1,9 @@
 <script>
-	RED.nodes.registerType('inverse', {
+	RED.nodes.registerType('reciprocal', {
 		category: 'cipherflow',
 		color: '#a6bbcf',
 		defaults: {
-			name: { value: 'inverse' },
+			name: { value: 'reciprocal' },
 			maxInput: { value: 10000 },
 			outputs: { value: 1 },
 		},
@@ -13,7 +13,7 @@
 	});
 </script>
 
-<script type="text/html" data-template-name="inverse">
+<script type="text/html" data-template-name="reciprocal">
 	<div class="form-row">
 		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
 		<input type="text" id="node-input-name" placeholder="Name" />
