@@ -10,8 +10,25 @@ module.exports = function (RED) {
 		const nodeContext = this.context();
 		const originContextNode = RED.nodes.getNode(config.originContextNode);
 
+		const contextSmallName = 'Small [default]';
+		const contextMediumName = 'Medium [default]';
+		const contextLargeName = 'Large [default]';
+
 		try {
-			if (config.isUpload == false && originContextNode !== undefined) {
+			if (config.name == contextSmallName || config.name == contextMediumName || config.name === contextLargeName) {
+				this.keyId = originContextNode.keyId;
+				this.publicKeyBase64 = globalContext.get(`pk_${originContextNode.id}`)
+
+				if (!this.publicKeyBase64) {
+					this.publicKeyBase64 = originContextNode.publicKeyBase64;
+					globalContext.set(`pk_${originContextNode.id}`, this.publicKeyBase64)
+				}
+				this.publicKey = seal.PublicKey();
+				this.publicKey.load(originContextNode.context, this.publicKeyBase64);
+				this.parmsBase64 = originContextNode.parms.save();
+
+			}
+			else if (config.isUpload == false && originContextNode !== undefined) {
 				this.keyId = originContextNode.keyId;
 				this.publicKey = seal.PublicKey();
 				this.publicKey.load(originContextNode.context, originContextNode.publicKeyBase64);

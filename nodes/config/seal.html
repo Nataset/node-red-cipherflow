@@ -8,28 +8,322 @@
 		label: function () {
 			return this.name;
 		},
-		onpaletteadd: function () {
-			RED.events.on('workspace:dirty', function (node) {
-				let configExist = false;
-				RED.nodes.eachConfig(function (configNode) {
-					if (configNode.type === 'seal') {
-						configExist = true;
+		onpaletteadd: function (_) {
+			const smallName = 'Small [default]';
+			const mediumName = 'Medium [default]';
+			const largeName = 'Large [default]';
+
+			RED.events.on('nodes:add', function (node) {
+				if (node._def.category === 'cipherflow') {
+					let configExist = false;
+					RED.nodes.eachConfig(function (configNode) {
+						if (configNode.type === 'seal') {
+							configExist = true;
+						}
+					});
+					if (!configExist) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('seal'),
+							type: 'seal',
+							hasUsers: false,
+							users: [],
+							name: 'seal',
+							label: function () {
+								return this.name || 'seal';
+							},
+						};
+						RED.nodes.add(newSealNode);
 					}
-				});
-				if (!configExist) {
-					const newSealNode = {
-						id: RED.nodes.id(),
-						_def: RED.nodes.getType('seal'),
-						type: 'seal',
-						hasUsers: false,
-						users: [],
-						name: 'seal',
-						label: function () {
-							return this.name || 'seal';
-						},
-					};
-					RED.nodes.add(newSealNode);
 				}
+			});
+
+			RED.events.on('nodes:add', function (node) {
+				if (
+					node._def.category === 'cipherflow' &&
+					(node.name === 'encrypt' ||
+						node.name === 'derypt' ||
+						node.name === 'setContext' ||
+						node.name === 'input' ||
+						node.name === 'toCipherText')
+				) {
+					let contexts = {};
+					let pks = {};
+					let sks = {};
+					let rks = {};
+
+					RED.nodes.eachConfig(function (configNode) {
+						if (configNode.type === 'context') {
+							if (configNode.name === smallName) {
+								contexts.small = configNode;
+							} else if (configNode.name === mediumName) {
+								contexts.medium = configNode;
+							} else if (configNode.name === largeName) {
+								contexts.large = configNode;
+							}
+						} else if (configNode.type === 'publicKey') {
+							if (configNode.name === smallName) {
+								pks.small = configNode;
+							}
+							if (configNode.name === mediumName) {
+								pks.medium = configNode;
+							}
+							if (configNode.name === largeName) {
+								pks.large = configNode;
+							}
+						} else if (configNode.type === 'secretKey') {
+							if (configNode.name === smallName) {
+								sks.small = configNode;
+							}
+							if (configNode.name === mediumName) {
+								sks.medium = configNode;
+							}
+							if (configNode.name === largeName) {
+								sks.large = configNode;
+							}
+						} else if (configNode.type === 'relinKey') {
+							if (configNode.name === smallName) {
+								rks.small = configNode;
+							}
+							if (configNode.name === mediumName) {
+								rks.medium = configNode;
+							}
+							if (configNode.name === largeName) {
+								rks.large = configNode;
+							}
+						}
+					});
+
+					if (!contexts.small) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('context'),
+							type: 'context',
+							hasUsers: false,
+							users: [],
+							name: smallName,
+							polyModulus: '8192',
+							coeffModulus: '{ "value": [50, 30, 30, 50] }',
+							scale: '30',
+							sealNode: '',
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || smallName;
+							},
+						};
+						contexts.small = newSealNode;
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!contexts.medium) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('context'),
+							type: 'context',
+							hasUsers: false,
+							users: [],
+							name: mediumName,
+							polyModulus: 8192,
+							coeffModulus: '{"value": [60, 40, 40, 60]}',
+							scale: 40,
+							sealNode: '',
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || mediumName;
+							},
+						};
+						contexts.medium = newSealNode;
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!contexts.large) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('context'),
+							type: 'context',
+							hasUsers: false,
+							users: [],
+							name: largeName,
+							polyModulus: 16384,
+							coeffModulus: '{ "value": [60, 40, 40, 40, 40, 40, 40, 40, 60] }',
+							scale: 40,
+							sealNode: '',
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || largeName;
+							},
+						};
+						contexts.large = newSealNode;
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!pks.small) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('publicKey'),
+							type: 'publicKey',
+							hasUsers: false,
+							users: [],
+							name: smallName,
+							originContextNode: contexts.small.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || smallName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!pks.medium) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('publicKey'),
+							type: 'publicKey',
+							name: mediumName,
+							hasUsers: false,
+							users: [],
+							originContextNode: contexts.medium.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || mediumName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!pks.large) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('publicKey'),
+							type: 'publicKey',
+							name: largeName,
+							hasUsers: false,
+							users: [],
+							originContextNode: contexts.large.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || largeName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!sks.small) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('secretKey'),
+							type: 'secretKey',
+							hasUsers: false,
+							users: [],
+							name: smallName,
+							originContextNode: contexts.small.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || smallName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!sks.medium) {
+						console.log(contexts.medium.id);
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('secretKey'),
+							type: 'secretKey',
+							hasUsers: false,
+							users: [],
+							name: mediumName,
+							originContextNode: contexts.medium.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || mediumName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!sks.large) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('secretKey'),
+							type: 'secretKey',
+							hasUsers: false,
+							users: [],
+							name: largeName,
+							originContextNode: contexts.large.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || largeName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!rks.small) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('relinKey'),
+							type: 'relinKey',
+							hasUsers: false,
+							users: [],
+							name: smallName,
+							originContextNode: contexts.small.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || smallName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!rks.medium) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('relinKey'),
+							type: 'relinKey',
+							hasUsers: false,
+							users: [],
+							name: mediumName,
+							originContextNode: contexts.medium.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || mediumName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+
+					if (!rks.large) {
+						const newSealNode = {
+							id: RED.nodes.id(),
+							_def: RED.nodes.getType('relinKey'),
+							type: 'relinKey',
+							hasUsers: false,
+							users: [],
+							name: largeName,
+							originContextNode: contexts.large.id,
+							importData: '',
+							isUpload: false,
+							label: function () {
+								return this.name || largeName;
+							},
+						};
+						RED.nodes.add(newSealNode);
+					}
+				}
+				RED.nodes.dirty(true);
 			});
 		},
 	});

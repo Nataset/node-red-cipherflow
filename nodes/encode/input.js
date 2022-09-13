@@ -16,6 +16,9 @@ module.exports = function (RED) {
 		const node = this;
 		// get value from this node html page
 		const value = parseFloat(config.value);
+
+		const outputs = parseInt(config.outputs);
+
 		// show value in the node status below the node if didn't value will show error in status
 		if (!value) {
 			const err = new Error('variable Value field is empty');
@@ -61,10 +64,6 @@ module.exports = function (RED) {
 					msg.context = { contextNodeId: contextNode.id };
 					msg.relinKey = { relinKeyNodeId: relinKeyNode.id }
 
-					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
-					msg.latestNodeId = config.id;
-					// pass input node type for checking from node that connected to this node
-					msg.payload = { cipherText: cipherText };
 
 					// if not error show chainIndex of output ciphertext
 					node.status({
@@ -72,7 +71,20 @@ module.exports = function (RED) {
 						shape: 'ring',
 						text: `ChainIndex: ${chainIndex}`,
 					});
-					node.send(msg, false);
+
+					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
+					msg.latestNodeId = config.id;
+					// pass input node type for checking from node that connected to this node
+					msg.payload = { cipherText: cipherText };
+
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: cipherText.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray, false);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					encryptor.delete();

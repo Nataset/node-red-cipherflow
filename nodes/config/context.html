@@ -14,8 +14,49 @@
 			return this.name;
 		},
 		oneditprepare: function () {
+			const contextSmallName = 'Small [default]';
+			const contextMediumName = 'Medium [default]';
+			const contextLargeName = 'Large [default]';
 			const id = this.id;
 			const isUpload = this.isUpload;
+
+			if (
+				this.name === contextSmallName ||
+				this.name === contextMediumName ||
+				this.name === contextLargeName
+			) {
+				$('#download-button').click(function () {
+					$.getJSON(
+						`${
+							RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
+						}/parms/${id}`,
+					)
+						.then(data => {
+							const exportData = `${data.parmsBase64}\n-----BEGIN SCALE EXPONENT-----\n${data.scaleExponent}`;
+
+							$('<a/>', {
+								download: `[${data._name}] CONTEXT-KEYID_${data.keyId}` + '.txt',
+								href: `data:text/plain;charset=utf-8,${exportData}`,
+							})
+								.appendTo('body')[0]
+								.click();
+							$(window).one('focus', function () {
+								$('a').last().remove();
+							});
+						})
+						.catch(err => {
+							//todo
+							console.error(err);
+						});
+				});
+
+				$('#content').hide();
+				$('#upload-button').hide();
+				$('#config-button').hide();
+				return;
+			}
+
+			$('#content').show();
 
 			if (isUpload) {
 				$('#upload').show();
@@ -47,9 +88,11 @@
 					}/parms/${id}`,
 				)
 					.then(data => {
+						const exportData = `${data.parmsBase64}\n-----BEGIN SCALE EXPONENT-----\n${data.scaleExponent}`;
+
 						$('<a/>', {
 							download: `[${data._name}] CONTEXT-KEYID_${data.keyId}` + '.txt',
-							href: `data:text/plain;charset=utf-8,${data.parmsBase64}`,
+							href: `data:text/plain;charset=utf-8,${exportData}`,
 						})
 							.appendTo('body')[0]
 							.click();
@@ -92,46 +135,61 @@
 				}
 			});
 		},
+
+		oneditdelete: function () {
+			RED.nodes.eachConfig(function (configNode) {
+				if (configNode.originContextNode === this.id) {
+					RED.nodes.remove(configNode.id);
+				}
+			});
+		},
 	});
 </script>
 
 <script type="text/html" data-template-name="context">
-	<input type="text" id="node-config-input-sealNode" />
-	<input type="checkbox" id="node-config-input-isUpload" />
-	<div class="form-row">
-		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
-		<input type="text" id="node-config-input-name" />
-	</div>
-
 	<div class="form-row">
 		<button type="button" class="red-ui-button" id="upload-button">Upload</button>
 		<button type="button" class="red-ui-button" id="config-button">Config</button>
 		<button type="button" class="red-ui-button" id="download-button">Download</button>
 	</div>
 
-	<div id="config">
-		<div class="form-row">
-			<label for="node-config-input-polyModulus"
-				><i class="fa fa-bookmark"></i> PolyModulus</label
-			>
-			<input type="number" id="node-config-input-polyModulus" />
-		</div>
-		<div class="form-row">
-			<label for="node-config-input-coeffModulus"
-				><i class="fa fa-bookmark"></i> CoeffModulus</label
-			>
-			<input type="text" id="node-config-input-coeffModulus" />
-		</div>
-		<div class="form-row">
-			<label for="node-config-input-scale"><i class="fa fa-bookmark"></i> Scale</label>
-			<input type="number" id="node-config-input-scale" />
-		</div>
-	</div>
+	<div id="content">
+		<input type="text" id="node-config-input-sealNode" />
+		<input type="checkbox" id="node-config-input-isUpload" />
 
-	<div id="upload">
-		<input type="file" id="node-config-importData" /><br />
-		<!-- <input type="text" id="node-config-input-importData" /> -->
-		<textarea type="text" id="node-config-input-importData" style="width: 100%; height:300px">
-		</textarea>
+		<div id="config">
+			<div class="form-row">
+				<label for="node-config-input-polyModulus"
+					><i class="fa fa-bookmark"></i> PolyModulus</label
+				>
+				<input type="number" id="node-config-input-polyModulus" />
+			</div>
+			<div class="form-row">
+				<label for="node-config-input-coeffModulus"
+					><i class="fa fa-bookmark"></i> CoeffModulus</label
+				>
+				<input type="text" id="node-config-input-coeffModulus" />
+			</div>
+			<div class="form-row">
+				<label for="node-config-input-scale"><i class="fa fa-bookmark"></i> Scale</label>
+				<input type="number" id="node-config-input-scale" />
+			</div>
+		</div>
+
+		<div id="upload">
+			<input type="file" id="node-config-importData" /><br />
+			<!-- <input type="text" id="node-config-input-importData" /> -->
+			<textarea
+				type="text"
+				id="node-config-input-importData"
+				style="width: 100%; height:300px"
+			>
+			</textarea>
+		</div>
+
+		<div class="form-row">
+			<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+			<input type="text" id="node-config-input-name" />
+		</div>
 	</div>
 </script>

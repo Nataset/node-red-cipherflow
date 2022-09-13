@@ -24,12 +24,10 @@ module.exports = function (RED) {
 					// get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
 					const secretKey = secretKeyNode.secretKey;
-
 					const encoder = contextNode.encoder;
 					const decryptor = seal.Decryptor(context, secretKey);
 					const plainText = decryptor.decrypt(cipherText);
 					const result = encoder.decode(plainText);
-
 					msg.payload = result;
 					if (config.showToDebug) {
 						// show first 10 value in array to node-red debug page

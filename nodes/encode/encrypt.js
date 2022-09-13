@@ -15,10 +15,8 @@ module.exports = function (RED) {
 
 		// check value in node config
 		try {
-
 			if (!config.context) {
 				throw new Error(`didn't select context`)
-
 			} else if (!config.publicKey) {
 				throw new Error(`didn't select publickey`)
 			} else if (!config.msgKey) {
@@ -32,9 +30,14 @@ module.exports = function (RED) {
 		}
 
 		node.on('input', function (msg) {
+
+			console.log('what happen');
+
 			const numberArray = nodeContext.get('numberArray');
 			const contextNode = RED.nodes.getNode(config.context);
 			const publicKeyNode = RED.nodes.getNode(config.publicKey);
+
+			const outputs = parseInt(config.outputs);
 
 			// handle input type of number or array
 			let payload;
@@ -89,17 +92,26 @@ module.exports = function (RED) {
 
 					const chainIndex = getChainIndex(cipherText, context);
 
-					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
-					msg.latestNodeId = config.id;
-					// pass input node type for checking from node that connected to this node
-					msg.payload = { cipherText: cipherText };
-					// if not error show chainIndex of output ciphertext
 					node.status({
 						fill: 'green',
 						shape: 'ring',
 						text: `ChainIndex: ${chainIndex}`,
 					});
-					node.send(msg, false);
+
+					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
+					msg.latestNodeId = config.id;
+					// pass input node type for checking from node that connected to this node
+					msg.payload = { cipherText: cipherText };
+					// if not error show chainIndex of output ciphertext
+
+					const msgArray = [msg];
+					for (i = 1; i < outputs; i++) {
+						const newMsg = { ...msg };
+						newMsg.payload = { cipherText: cipherText.clone() };
+						msgArray.push(newMsg);
+					}
+
+					node.send(msgArray, false);
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					plainText.delete();
 				}

@@ -106,8 +106,10 @@ module.exports = function (RED) {
 					evaluator.rescaleToNext(anCipher, anCipher);
 					anCipher.setScale(scale);
 
-					b0cipher = bnCipher;
-					a0Cipher = anCipher.clone();
+					b0cipher.release();
+					a0Cipher.release();
+					b0cipher.copy(bnCipher);
+					a0Cipher.copy(anCipher);
 				}
 
 				const invNorEncryArray = anCipher;
@@ -153,6 +155,11 @@ module.exports = function (RED) {
 				anCipher.delete();
 				bnCipher.delete();
 				oneNorEncrypt.delete();
+				plainNormailzerArray.delete();
+				norEncryArray.delete();
+				NegateNorEncryArray.delete();
+				invNorEncryArray.delete();
+				cipherText.delete();
 			} catch (err) {
 				node.error(err);
 				node.status({ fill: 'red', shape: 'dot', text: err.toString() });

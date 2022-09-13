@@ -32,7 +32,9 @@
 			"multi(P)": "nodes/compute/multiPlain.js",
 			"negate": "nodes/compute/negate.js",
 			"exponent": "nodes/compute/exponent.js",
-			"reciprocal": "nodes/compute/reciprocal.js"
+			"reciprocal": "nodes/compute/reciprocal.js",
+			"toBase64": "nodes/convert/toBase64.js",
+			"toCiphertext": "nodes/convert/toCiphertext.js"
 		}
 	},
 	"dependencies": {

@@ -12,27 +12,39 @@ module.exports = async function (RED) {
 		const schemeType = seal.SchemeType.ckks;
 		const securityLevel = seal.SecurityLevel.none;
 		let parms = seal.EncryptionParameters(schemeType);
+		let context;
 
 		try {
 			if (!config.isUpload) {
-				const polyModulusDegree = config.polyModulus;
-				const bitSizes = JSON.parse(config.coeffModulus).value;
-				parms.setPolyModulusDegree(polyModulusDegree);
-				parms.setCoeffModulus(
-					seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes)),
-				);
+				try {
+					const polyModulusDegree = config.polyModulus;
+					const bitSizes = JSON.parse(config.coeffModulus).value;
+					parms.setPolyModulusDegree(polyModulusDegree);
+					parms.setCoeffModulus(
+						seal.CoeffModulus.Create(polyModulusDegree, Int32Array.from(bitSizes)),
+					);
 
-				context = seal.Context(
-					parms, // Encryption Parameters
-					true, // ExpandModChain
-					securityLevel, // Enforce a security level
-				);
+					context = seal.Context(
+						parms, // Encryption Parameters
+						true, // ExpandModChain
+						securityLevel, // Enforce a security level
+					);
+
+					this.scale = Math.pow(2, config.scale);
+
+				} catch (err) {
+					throw err;
+				}
+
+
 			} else if (config.isUpload && config.importData !== '') {
 				try {
-
-					parmsBase64 = config.importData;
+					const splitData = config.importData.split('\n-----BEGIN SCALE EXPONENT-----\n')
+					const parmsBase64 = splitData[0];
 					parms.load(parmsBase64);
 					context = seal.Context(parms, true, securityLevel);
+
+					this.scale = Math.pow(2, splitData[1]);
 				} catch (err) {
 					throw new Error('Import Context Fail');
 				}
@@ -45,9 +57,25 @@ module.exports = async function (RED) {
 			const encoder = seal.CKKSEncoder(context);
 			const evaluator = seal.Evaluator(context);
 			const keyGenerator = seal.KeyGenerator(context);
+			//time
+			// console.time('secretKey');
 			const secretKey = keyGenerator.secretKey();
+			// console.timeEnd('secretKey');
+			// const skSize = secretKey.save().length / 1e6;
+			// console.log("sk size:", skSize)
+
+			// console.time('publicKey');
 			const publicKeySerial = keyGenerator.createPublicKeySerializable();
+			// console.timeEnd('publicKey');
+			// const pkSize = publicKeySerial.save().length / 1e6;
+			// console.log("pk size:", pkSize)
+
+			// console.time('relinKey');
 			const relinKeySerial = keyGenerator.createRelinKeysSerializable();
+			// console.timeEnd('relinKey');
+			// const rkSize = relinKeySerial.save().length / 1e6;
+			// console.log("rk size:", rkSize)
+
 			const publicKeyBase64 = publicKeySerial.save();
 			const relinKeyBase64 = relinKeySerial.save();
 
@@ -58,7 +86,6 @@ module.exports = async function (RED) {
 			this.secretKey = secretKey;
 			this.publicKeyBase64 = publicKeyBase64;
 			this.relinKeyBase64 = relinKeyBase64;
-			this.scale = Math.pow(2, config.scale);
 			this.encoder = encoder;
 			this.evaluator = evaluator;
 			this.keyId = keyId;
@@ -67,6 +94,7 @@ module.exports = async function (RED) {
 			nodeContext.set('config', config);
 			nodeContext.set('parms', parms);
 			nodeContext.set('keyId', keyId);
+			nodeContext.set('scaleExponent', config.scale)
 
 		} catch (err) {
 			console.error(err);
@@ -77,12 +105,14 @@ module.exports = async function (RED) {
 			const config = nodeContext.get('config');
 			const parms = nodeContext.get('parms');
 			const keyId = nodeContext.get('keyId');
+			const scaleExponent = nodeContext.get('scaleExponent');
 
 			res.json({
 				_name: config.name,
 				_id: config.id,
 				keyId: keyId,
 				parmsBase64: parms.save(),
+				scaleExponent: scaleExponent
 			});
 		});
 

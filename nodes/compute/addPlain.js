@@ -15,7 +15,7 @@ module.exports = function (RED) {
 		if (!seal) return
 
 		const node = this;
-		const outputs = config.outputs;
+		const outputs = parseInt(config.outputs);
 		// get value from this node html page
 		const value = parseFloat(config.value);
 

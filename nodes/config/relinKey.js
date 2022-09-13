@@ -9,10 +9,25 @@ module.exports = function (RED) {
 
 		const nodeContext = this.context();
 		const originContextNode = RED.nodes.getNode(config.originContextNode);
+		const contextSmallName = 'Small [default]';
+		const contextMediumName = 'Medium [default]';
+		const contextLargeName = 'Large [default]';
 
 		try {
+			if (config.name == contextSmallName || config.name == contextMediumName || config.name === contextLargeName) {
+				this.keyId = originContextNode.keyId;
+				this.relinKeyBase64 = globalContext.get(`rk_${originContextNode.id}`)
 
-			if (config.isUpload == false && originContextNode !== undefined) {
+				if (!this.relinKeyBase64) {
+					this.relinKeyBase64 = originContextNode.relinKeyBase64;
+					globalContext.set(`rk_${originContextNode.id}`, this.relinKeyBase64)
+				}
+				this.relinKey = seal.RelinKeys();
+				this.relinKey.load(originContextNode.context, this.relinKeyBase64);
+				this.parmsBase64 = originContextNode.parms.save();
+
+			}
+			else if (config.isUpload == false && originContextNode !== undefined) {
 				this.keyId = originContextNode.keyId;
 				this.relinKey = seal.RelinKeys();
 				this.relinKey.load(originContextNode.context, originContextNode.relinKeyBase64);
