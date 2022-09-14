@@ -44,7 +44,6 @@
 				},
 
 				exportPublicKey: function (keyId, parmsBase64, publicKeyBase64) {
-					console.log(this.lineLength);
 					let exportText = '';
 					exportText += this.beginKeyId + '\n';
 					exportText += keyId + '\n';
@@ -172,7 +171,6 @@
 					() => {
 						importData = fr.result;
 						$('#node-config-input-importData').val(importData);
-						console.log('TESTTESTESTSET');
 					},
 					false,
 				);

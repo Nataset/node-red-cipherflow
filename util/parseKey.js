@@ -23,7 +23,6 @@ module.exports = {
     },
 
     exportPublicKey: function (keyId, parmsBase64, publicKeyBase64) {
-        console.log(this.lineLength)
         let exportText = ''
         exportText += this.beginKeyId + '\n';
         exportText += keyId + '\n'
@@ -44,7 +43,6 @@ module.exports = {
     },
 
     exportSecretKey: function (keyId, parmsBase64, secretKeyBase64) {
-        console.log(this.lineLength)
         let exportText = ''
         exportText += this.beginKeyId + '\n';
         exportText += keyId + '\n'
@@ -65,7 +63,6 @@ module.exports = {
     },
 
     exportRelinKey: function (keyId, parmsBase64, relinKeyBase64) {
-        console.log(this.lineLength)
         let exportText = ''
         exportText += this.beginKeyId + '\n';
         exportText += keyId + '\n'

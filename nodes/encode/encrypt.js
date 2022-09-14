@@ -30,9 +30,6 @@ module.exports = function (RED) {
 		}
 
 		node.on('input', function (msg) {
-
-			console.log('what happen');
-
 			const numberArray = nodeContext.get('numberArray');
 			const contextNode = RED.nodes.getNode(config.context);
 			const publicKeyNode = RED.nodes.getNode(config.publicKey);
@@ -44,7 +41,7 @@ module.exports = function (RED) {
 			try {
 				if (config.isReceivedNumber === 'true') {
 					// if input isn't number show error to node status
-					if (typeof msg[config.msgKey] !== 'number') {
+					if (parseFloat(msg[config.msgKey]) === NaN) {
 						throw new Error(`msg.${config.msgKey} isn't number`);
 					}
 
