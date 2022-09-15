@@ -20,41 +20,41 @@
 			const id = this.id;
 			const isUpload = this.isUpload;
 
-			if (
-				this.name === contextSmallName ||
-				this.name === contextMediumName ||
-				this.name === contextLargeName
-			) {
-				$('#download-button').click(function () {
-					$.getJSON(
-						`${
-							RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
-						}/parms/${id}`,
-					)
-						.then(data => {
-							const exportData = `${data.parmsBase64}\n-----BEGIN SCALE EXPONENT-----\n${data.scaleExponent}`;
+			// if (
+			// 	this.name === contextSmallName ||
+			// 	this.name === contextMediumName ||
+			// 	this.name === contextLargeName
+			// ) {
+			// 	$('#download-button').click(function () {
+			// 		$.getJSON(
+			// 			`${
+			// 				RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
+			// 			}/parms/${id}`,
+			// 		)
+			// 			.then(data => {
+			// 				const exportData = `${data.parmsBase64}\n-----BEGIN SCALE EXPONENT-----\n${data.scaleExponent}`;
 
-							$('<a/>', {
-								download: `[${data._name}] CONTEXT-KEYID_${data.keyId}` + '.txt',
-								href: `data:text/plain;charset=utf-8,${exportData}`,
-							})
-								.appendTo('body')[0]
-								.click();
-							$(window).one('focus', function () {
-								$('a').last().remove();
-							});
-						})
-						.catch(err => {
-							//todo
-							console.error(err);
-						});
-				});
+			// 				$('<a/>', {
+			// 					download: `[${data._name}] CONTEXT-KEYID_${data.keyId}` + '.txt',
+			// 					href: `data:text/plain;charset=utf-8,${exportData}`,
+			// 				})
+			// 					.appendTo('body')[0]
+			// 					.click();
+			// 				$(window).one('focus', function () {
+			// 					$('a').last().remove();
+			// 				});
+			// 			})
+			// 			.catch(err => {
+			// 				//todo
+			// 				console.error(err);
+			// 			});
+			// 	});
 
-				$('#content').hide();
-				$('#upload-button').hide();
-				$('#config-button').hide();
-				return;
-			}
+			// 	$('#content').hide();
+			// 	$('#upload-button').hide();
+			// 	$('#config-button').hide();
+			// 	return;
+			// }
 
 			$('#content').show();
 
@@ -137,8 +137,9 @@
 		},
 
 		oneditdelete: function () {
+			const id = this.id;
 			RED.nodes.eachConfig(function (configNode) {
-				if (configNode.originContextNode === this.id) {
+				if (configNode.originContextNode === id) {
 					RED.nodes.remove(configNode.id);
 				}
 			});
