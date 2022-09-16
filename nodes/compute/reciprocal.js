@@ -51,7 +51,8 @@ module.exports = function (RED) {
 				const evaluator = contextNode.evaluator;
 				const context = contextNode.context;
 				const encoder = contextNode.encoder;
-				const relinKey = relinKeyNode.relinKey;
+				const relinKey = seal.RelinKeys();
+				relinKey.load(context, relinKeyNode.relinKeyBase64);
 				const scale = contextNode.scale;
 				const d = 3;
 
@@ -160,6 +161,7 @@ module.exports = function (RED) {
 				NegateNorEncryArray.delete();
 				invNorEncryArray.delete();
 				cipherText.delete();
+				relinKey.delete();
 			} catch (err) {
 				node.error(err);
 				node.status({ fill: 'red', shape: 'dot', text: err.toString() });

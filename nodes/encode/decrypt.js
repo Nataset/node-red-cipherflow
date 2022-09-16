@@ -23,7 +23,8 @@ module.exports = function (RED) {
 
 					// get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
-					const secretKey = secretKeyNode.secretKey;
+					const secretKey = seal.SecretKey()
+					secretKey.load(context, secretKeyNode.secretKeyBase64);
 					const encoder = contextNode.encoder;
 					const decryptor = seal.Decryptor(context, secretKey);
 					const plainText = decryptor.decrypt(cipherText);
@@ -40,6 +41,7 @@ module.exports = function (RED) {
 					decryptor.delete();
 					plainText.delete();
 					cipherText.delete();
+					secretKey.delete();
 				}
 			} catch (err) {
 				node.error(err);

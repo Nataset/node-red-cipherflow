@@ -73,10 +73,11 @@ module.exports = function (RED) {
 					//get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
 					const scale = contextNode.scale;
-					const publicKey = publicKeyNode.publicKey;
-
+					const publicKey = seal.PublicKey();
+					publicKey.load(context, publicKeyNode.publicKeyBase64)
 					const encoder = contextNode.encoder;
 					const encryptor = seal.Encryptor(context, publicKey);
+
 
 					if (payload.length > encoder.slotCount) {
 						throw new Error('input array length is longer than context can handle');
@@ -95,6 +96,8 @@ module.exports = function (RED) {
 						text: `ChainIndex: ${chainIndex}`,
 					});
 
+					console.log(6);
+
 					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
 					msg.latestNodeId = config.id;
 					// pass input node type for checking from node that connected to this node
@@ -111,6 +114,7 @@ module.exports = function (RED) {
 					node.send(msgArray, false);
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					plainText.delete();
+					publicKey.delete();
 				}
 			} catch (err) {
 				node.error(err);

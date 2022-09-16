@@ -48,7 +48,8 @@ module.exports = function (RED) {
 					const encoder = contextNode.encoder;
 					const evaluator = contextNode.evaluator;
 					const scale = contextNode.scale;
-					const relinKey = relinKeyNode.relinKey;
+					const relinKey = seal.RelinKeys();
+					relinKey.load(context, relinKeyNode.relinKeyBase64);
 
 					// encode value to plaintext before multiply to ciphertext
 					const array = Float64Array.from({ length: encoder.slotCount }, () => value);
@@ -86,6 +87,7 @@ module.exports = function (RED) {
 					// delete unuse instance of seal objects prevent out of wasm memory error
 					inputCipher.delete();
 					plainText.delete();
+					relinKey.delete();
 				}
 			} catch (err) {
 				node.error(err);

@@ -3,136 +3,15 @@
 		category: 'config',
 		defaults: {
 			name: { value: 'relinKey', required: true },
-			originContextNode: { value: '' },
+			contextNodeId: { value: '' },
 			importData: { value: '' },
-			isUpload: { value: false },
 		},
 		label: function () {
 			return this.name;
 		},
 		oneditprepare: function () {
-			const contextSmallName = 'Small [default]';
-			const contextMediumName = 'Medium [default]';
-			const contextLargeName = 'Large [default]';
 			const id = this.id;
-			const contextNodes = [];
-			const isUpload = this.isUpload;
 			var importData = this.importData;
-
-			const parseKey = {
-				lineLength: 64,
-				beginParms: '|------------------------BEGIN PARMS---------------------------|',
-				beginKeyId: '|------------------------BEGIN KEYID---------------------------|',
-				beginRlKey: '|------------------------BEGIN RLKEY---------------------------|',
-
-				stringLengthLimter: function (string, lineLength) {
-					let exportText = '';
-					j = 0;
-					for (let i = 0; i < string.length; i++) {
-						if (j < lineLength) {
-							exportText += string[i];
-						} else if (j == lineLength) {
-							exportText += '\n';
-							i--;
-							j = -1;
-						}
-						j++;
-					}
-					return exportText[exportText.length - 1] !== '\n'
-						? exportText + '\n'
-						: exportText;
-				},
-
-				exportRelinKey: function (keyId, parmsBase64, relinKeyBase64) {
-					let exportText = '';
-					exportText += this.beginKeyId + '\n';
-					exportText += keyId + '\n';
-					exportText += this.beginParms + '\n';
-					exportText += this.stringLengthLimter(parmsBase64, this.lineLength);
-					exportText += this.beginRlKey + '\n';
-					exportText += this.stringLengthLimter(relinKeyBase64, this.lineLength);
-					return exportText[exportText.length - 1] === '\n'
-						? exportText.slice(0, -1)
-						: exportText;
-				},
-			};
-			if (
-				this.name === contextSmallName ||
-				this.name === contextMediumName ||
-				this.name === contextLargeName
-			) {
-				$('#download-button').click(function () {
-					$.getJSON(
-						`${
-							RED.settings.httpNodeRoot == '/' ? '' : RED.settings.httpNodeRoot
-						}/relinKey/${id}`,
-					)
-						.then(data => {
-							const exportData = parseKey.exportRelinKey(
-								data.keyId,
-								data.parmsBase64,
-								data.relinKeyBase64,
-							);
-
-							$('<a/>', {
-								download: `[${data._name}] RK-KEYID_${data.keyId}` + '.txt',
-								href: `data:text/plain;charset=utf-8,${exportData}`,
-							})
-								.appendTo('body')[0]
-								.click();
-							$(window).one('focus', function () {
-								$('a').last().remove();
-							});
-						})
-						.catch(err => {
-							//todo
-							console.error(err);
-						});
-				});
-
-				$('#content').hide();
-				$('#upload-button').hide();
-				$('#context-button').hide();
-				return;
-			}
-
-			RED.nodes.eachConfig(function (configNode) {
-				if (configNode.type === 'context') {
-					contextNodes.push({ value: configNode.id, label: configNode.name });
-				}
-			});
-
-			$('#node-config-input-originContextNode').typedInput({
-				types: [
-					{
-						value: 'originContextNode',
-						options: contextNodes,
-					},
-				],
-			});
-
-			if (isUpload) {
-				$('#upload').show();
-				$('#context').hide();
-			} else {
-				$('#context').show();
-				$('#upload').hide();
-			}
-
-			$('#node-config-input-sealNode').hide();
-			$('#node-config-input-isUpload').hide();
-
-			$('#upload-button').click(function () {
-				$('#node-config-input-isUpload').prop('checked', true);
-				$('#upload').show();
-				$('#context').hide();
-			});
-
-			$('#context-button').click(function () {
-				$('#node-config-input-isUpload').prop('checked', false);
-				$('#context').show();
-				$('#upload').hide();
-			});
 
 			$('#download-button').click(function () {
 				$.getJSON(
@@ -141,15 +20,11 @@
 					}/relinKey/${id}`,
 				)
 					.then(data => {
-						const exportData = parseKey.exportRelinKey(
-							data.keyId,
-							data.parmsBase64,
-							data.relinKeyBase64,
-						);
+						const relinKeyBase64 = data.relinKeyBase64;
 
 						$('<a/>', {
-							download: `[${data._name}] RK-KEYID_${data.keyId}` + '.txt',
-							href: `data:text/plain;charset=utf-8,${exportData}`,
+							download: `[RelinKey] ${data._name}` + '.txt',
+							href: `data:text/plain;charset=utf-8,${importData}`,
 						})
 							.appendTo('body')[0]
 							.click();
@@ -180,42 +55,22 @@
 				}
 			});
 		},
-		oneditsave: function () {
-			// if (!$('node-config-input-isUpload').prop('checked')) {
-			// 	const contextNodeId = $('#node-config-input-originContextNode').val();
-			// 	$.getJSON(`/context/publicKey/${contextNodeId}`).then(data => {
-			// 	});
-			// }
-		},
 	});
 </script>
 
 <script type="text/html" data-template-name="relinKey">
 	<div class="form-row">
-		<button type="button" class="red-ui-button" id="upload-button">Upload</button>
-		<button type="button" class="red-ui-button" id="context-button">Config</button>
+		<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
+		<input type="text" id="node-config-input-name" />
+	</div>
+
+	<div class="form-row">
 		<button type="button" class="red-ui-button" id="download-button">Download</button>
 	</div>
 
-	<div id="content">
-		<input type="checkbox" id="node-config-input-isUpload" />
-		<div id="context">
-			<input type="text" id="node-config-input-originContextNode" />
-		</div>
-
-		<div id="upload">
-			<input type="file" id="node-config-importData" /><br />
-			<!-- <input type="text" id="node-config-input-importData" /> -->
-			<textarea
-				type="text"
-				id="node-config-input-importData"
-				style="width: 100%; height:300px"
-			>
-			</textarea>
-		</div>
-		<div class="form-row">
-			<label for="node-config-input-name"><i class="fa fa-bookmark"></i>Name</label>
-			<input type="text" id="node-config-input-name" />
-		</div>
+	<div id="upload">
+		<input type="file" id="node-config-importData" /><br />
+		<textarea type="text" id="node-config-input-importData" style="width: 100%; height:300px">
+		</textarea>
 	</div>
 </script>

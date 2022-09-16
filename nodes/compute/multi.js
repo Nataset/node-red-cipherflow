@@ -78,7 +78,8 @@ module.exports = function (RED) {
 
 					const context = contextNode.context;
 					const evaluator = contextNode.evaluator;
-					const relinKey = relinKeyNode.relinKey;
+					const relinKey = seal.RelinKeys();
+					relinKey.load(context, relinKeyNode.relinKeyBase64);
 					const scale = contextNode.scale;
 
 					// equal fisrtCipher chainIndex to secondCipher chainIndex
@@ -132,6 +133,7 @@ module.exports = function (RED) {
 					secondValue.cipher.delete();
 					firstCipher.delete();
 					secondCipher.delete();
+					relinKey.delete();
 				}
 			} catch (err) {
 				node.error(err);

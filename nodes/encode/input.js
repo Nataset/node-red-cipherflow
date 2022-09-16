@@ -41,7 +41,8 @@ module.exports = function (RED) {
 				} else {
 					// get seal objects needed to encrypt the value from the config node
 					const context = contextNode.context;
-					const publicKey = publicKeyNode.publicKey;
+					const publicKey = seal.PublicKey();
+					publicKey.load(context, publicKeyNode.publicKeyBase64)
 
 					const encoder = contextNode.encoder;
 					const encryptor = seal.Encryptor(context, publicKey);
@@ -87,6 +88,7 @@ module.exports = function (RED) {
 					node.send(msgArray, false);
 
 					// delete unuse instance of seal objects prevent out of wasm memory error
+					publicKey.delete();
 					encryptor.delete();
 					plainText.delete();
 				}

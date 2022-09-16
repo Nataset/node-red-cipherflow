@@ -56,36 +56,9 @@ module.exports = async function (RED) {
 
 			const encoder = seal.CKKSEncoder(context);
 			const evaluator = seal.Evaluator(context);
-			const keyGenerator = seal.KeyGenerator(context);
-			//time
-			// console.time('secretKey');
-			const secretKey = keyGenerator.secretKey();
-			// console.timeEnd('secretKey');
-			// const skSize = secretKey.save().length / 1e6;
-			// console.log("sk size:", skSize)
-
-			// console.time('publicKey');
-			const publicKeySerial = keyGenerator.createPublicKeySerializable();
-			// console.timeEnd('publicKey');
-			// const pkSize = publicKeySerial.save().length / 1e6;
-			// console.log("pk size:", pkSize)
-
-			// console.time('relinKey');
-			const relinKeySerial = keyGenerator.createRelinKeysSerializable();
-			// console.timeEnd('relinKey');
-			// const rkSize = relinKeySerial.save().length / 1e6;
-			// console.log("rk size:", rkSize)
-
-			const publicKeyBase64 = publicKeySerial.save();
-			const relinKeyBase64 = relinKeySerial.save();
-
 
 			this.context = context;
 			this.parms = parms;
-			this.keyGenerator = keyGenerator;
-			this.secretKey = secretKey;
-			this.publicKeyBase64 = publicKeyBase64;
-			this.relinKeyBase64 = relinKeyBase64;
 			this.encoder = encoder;
 			this.evaluator = evaluator;
 			this.keyId = keyId;
@@ -94,7 +67,7 @@ module.exports = async function (RED) {
 			nodeContext.set('config', config);
 			nodeContext.set('parms', parms);
 			nodeContext.set('keyId', keyId);
-			nodeContext.set('scaleExponent', config.scale)
+			nodeContext.set('scaleExponent', Math.log(this.scale) / Math.log(2))
 
 		} catch (err) {
 			console.error(err);
@@ -104,7 +77,6 @@ module.exports = async function (RED) {
 		RED.httpNode.get(`/parms/${config.id}`, (req, res) => {
 			const config = nodeContext.get('config');
 			const parms = nodeContext.get('parms');
-			const keyId = nodeContext.get('keyId');
 			const scaleExponent = nodeContext.get('scaleExponent');
 
 			res.json({
@@ -119,13 +91,8 @@ module.exports = async function (RED) {
 		this.on('close', done => {
 			this.context.delete();
 			this.parms.delete();
-			this.keyGenerator.delete();
-			this.secretKey.delete();
-			this.publicKeySerial.delete();
-			this.relinKeySerial.delete();
-			this.publicKeyBase64.delete();
-			this.relinKeyBase64.delete();
-
+			this.encoder.delete();
+			this.evaluator.delete();
 			done();
 		});
 

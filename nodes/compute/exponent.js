@@ -46,7 +46,8 @@ module.exports = function (RED) {
 					// declare variable for power the ciphertext
 					const context = contextNode.context;
 					const evaluator = contextNode.evaluator;
-					const relinKey = relinKeyNode.relinKey;
+					const relinKey = seal.RelinKeys();
+					relinKey.load(context, relinKeyNode.relinKeyBase64);
 					const scale = contextNode.scale;
 
 					// clone ciphertext prevent race condition
@@ -86,6 +87,8 @@ module.exports = function (RED) {
 					// delete unuse seal instance prevent out of wasm memory error
 					inputCipher.delete();
 					cipherText.delete();
+					relinKey.delete();
+
 				}
 			} catch (err) {
 				node.error(err, msg);
