@@ -96,8 +96,6 @@ module.exports = function (RED) {
 						text: `ChainIndex: ${chainIndex}`,
 					});
 
-					console.log(6);
-
 					// latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
 					msg.latestNodeId = config.id;
 					// pass input node type for checking from node that connected to this node
