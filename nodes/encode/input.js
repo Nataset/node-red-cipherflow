@@ -30,6 +30,7 @@ module.exports = function (RED) {
 		}
 
 		node.on('input', function (msg) {
+			node.status({});
 			// get seal object from config node by useing config node id that passed from injectContext node
 			const contextNode = RED.nodes.getNode(config.context);
 			const publicKeyNode = RED.nodes.getNode(config.publicKey);

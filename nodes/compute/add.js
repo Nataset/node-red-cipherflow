@@ -21,6 +21,7 @@ module.exports = function (RED) {
 		node.status({ fill: 'grey', shape: 'ring' });
 
 		node.on('input', function (msg) {
+			node.status({});
 			// get seal objects from config node
 			const contextNode = RED.nodes.getNode(msg.context.contextNodeId);
 

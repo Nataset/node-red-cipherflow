@@ -1,0 +1,95 @@
+<script>
+	RED.nodes.registerType('encrypt-pack', {
+		category: 'cipherflow',
+		color: '#E1D96E',
+		defaults: {
+			name: { value: 'encrypt-pack' },
+			context: { value: '', type: 'context' },
+			publicKey: { value: '', type: 'publicKey' },
+			outputs: { value: 1 },
+			isReceivedNumber: { value: true },
+			msgKey: { value: 'payload' },
+			numberArrayLength: { value: 1 },
+		},
+		inputs: 1,
+		outputs: 1,
+		icon: 'file.png',
+		label: function () {
+			return this.name || 'encrypt-pack';
+		},
+		oneditprepare: function () {
+			$('#node-input-isReceivedNumber')
+				.typedInput({
+					type: 'boolean',
+					types: [
+						{
+							value: 'isReceivedNumber',
+							options: [
+								{ value: true, label: 'Received Number' },
+							],
+						},
+					],
+				})
+				.typedInput('value', isReceivedNumber === 'true');
+
+			$('#node-input-msgKey').typedInput({
+				type: 'msg',
+				types: ['msg'],
+				typeField: '#node-input-msgKey-type',
+			});
+
+			// $('#node-input-isReceivedNumber').change(function () {
+			// 	const isReceivedNumber = this.value === 'true';
+			// 	if (isReceivedNumber) {
+			// 		$('#isReceivedNumber-text').show();
+			// 		$('#isReceivedNumber-form').show();
+			// 	} else {
+			// 		$('#isReceivedNumber-text').hide();
+			// 		$('#isReceivedNumber-form').hide();
+			// 	}
+			// });
+		},
+	});
+</script>
+
+<script type="text/html" data-template-name="encrypt-pack">
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i>Name</label>
+		<input type="text" id="node-input-name" placeholder="Name" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-context"><i class="fa fa-tag"></i>Context</label>
+		<input id="node-input-context" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-publicKey"><i class="fa fa-tag"></i>PublicKey</label>
+		<input id="node-input-publicKey" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-isReceivedNumber"><i class="fa fa-tag"></i>Input option</label>
+		<input type="text" id="node-input-isReceivedNumber" />
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-isReceivedNumber"></label>
+		<span>From&nbsp;</span>
+		<input type="text" id="node-input-msgKey" style="width: 30%;" value="payload" />
+		<input type="hidden" id="node-input-msgKey-type" />
+		<span id="isReceivedNumber-text">&nbsp;then</span>
+	</div>
+
+	<div class="form-row" id="isReceivedNumber-form">
+		<label for="node-input-umberArrayLength"></label>
+		<span>Encrypt and send every&nbsp;</span>
+		<input type="number" id="node-input-numberArrayLength" style="width: 50px;" value="1" />
+		<span>&nbsp;number</span>
+	</div>
+
+	<div class="form-row">
+		<label for="node-input-outputs"><i class="fa fa-tag"></i>number of outputs</label>
+		<input type="number" id="node-input-outputs" placeholder="1" style="width: 50px;" />
+	</div>
+</script>

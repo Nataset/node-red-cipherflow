@@ -10,6 +10,10 @@ module.exports = function (RED) {
 
         const nodeContext = this.context();
         nodeContext.set("numberArray", []);
+        nodeContext.set("timeArray", []);
+        const startNull = Math.pow(2, 50) - 1000;
+        const endNull = Math.pow(2, 30);
+        const ckksNull = -((startNull + endNull) / 2);
 
         const node = this;
 
@@ -30,17 +34,17 @@ module.exports = function (RED) {
         }
 
         node.on("input", function (msg) {
-            node.status({});
             // const used = process.memoryUsage();
             // for (let key in used) {
             //     console.log(
             //         `Memory: ${key} ${
             //             Math.round((used[key] / 1024 / 1024) * 100) / 100
             //         } MB`
-            //     ;)
+            //     );
             // }
             // console.log("----------------------------------");
             const numberArray = nodeContext.get("numberArray");
+            const timeArray = nodeContext.get("timeArray");
             const contextNode = RED.nodes.getNode(config.context);
             const publicKeyNode = RED.nodes.getNode(config.publicKey);
 
@@ -49,34 +53,33 @@ module.exports = function (RED) {
             // handle input type of number or array
             let payload;
             try {
-                if (config.isReceivedNumber === "true") {
-                    // if input isn't number show error to node status
-                    if (parseFloat(msg[config.msgKey]) === NaN) {
-                        throw new Error(`msg.${config.msgKey} isn't number`);
-                    }
+                // if input isn't number show error to node status
+                if (parseFloat(msg[config.msgKey]) === NaN) {
+                    throw new Error(`msg.${config.msgKey} isn't number`);
+                }
 
-                    // push new number in msg.payload(or value in config.msgKey) to the numberArray
-                    numberArray.push(parseFloat(msg[config.msgKey]));
+                // push new number in msg.payload(or value in config.msgKey) to the numberArray
+                const time = Date.now();
+                node.warn("Time=" + time);
+                numberArray.unshift(parseFloat(msg[config.msgKey]));
+                timeArray.unshift(parseFloat(time));
 
-                    // if numberArray size is less than value that user set save array and waiting for another input
-                    if (numberArray.length < config.numberArrayLength) {
-                        nodeContext.set("numberArray", numberArray);
-                        node.status({
-                            fill: "blue",
-                            shape: "ring",
-                            text: `waiting ${numberArray.length}/${config.numberArrayLength}`,
-                        });
-                        return;
-                        // else set numberArray to empty array and continue
-                    } else {
-                        nodeContext.set("numberArray", []);
-                        payload = numberArray;
-                    }
+                // if numberArray size is less than value that user set save array and waiting for another input
+                if (numberArray.length < config.numberArrayLength) {
+                    nodeContext.set("numberArray", numberArray);
+                    nodeContext.set("timeArray", timeArray);
+                    node.status({
+                        fill: "blue",
+                        shape: "ring",
+                        text: `waiting ${numberArray.length}/${config.numberArrayLength}`,
+                    });
+                    return;
+                    // else set numberArray to empty array and continue
                 } else {
-                    if (!Array.isArray(msg[config.msgKey])) {
-                        throw new Error(`msg.${config.msgKey} isn't array`);
-                    }
-                    payload = msg[config.msgKey];
+                    nodeContext.set("numberArray", numberArray.slice(0, -1));
+                    nodeContext.set("timeArray", timeArray.slice(0, -1));
+                    payload = numberArray;
+                    payload2 = timeArray;
                 }
 
                 if (!contextNode) {
@@ -84,6 +87,7 @@ module.exports = function (RED) {
                 } else if (!publicKeyNode) {
                     throw new Error(`PublicKey node not found`);
                 } else {
+                    console.log("what te");
                     //get seal objects needed to encrypt the value from the config node
                     const context = contextNode.context;
                     const scale = contextNode.scale;
@@ -106,6 +110,13 @@ module.exports = function (RED) {
                     const plainText = encoder.encode(array, scale);
                     const cipherText = encryptor.encrypt(plainText);
 
+                    const array2 = Float64Array.from(
+                        { length: encoder.slotCount },
+                        (_, i) => (payload2[i] ? payload2[i] : 0)
+                    );
+                    const plainText2 = encoder.encode(array2, scale);
+                    const cipherTextTime = encryptor.encrypt(plainText2);
+
                     const chainIndex = getChainIndex(cipherText, context);
 
                     node.status({
@@ -115,24 +126,23 @@ module.exports = function (RED) {
                     });
 
                     // delete unuse instance of seal objects prevent out of wasm memory error
-                    plainText.delete();
-                    publicKey.delete();
-                    encryptor.delete();
 
                     // latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
                     msg.latestNodeId = config.id;
                     // pass input node type for checking from node that connected to this node
-                    msg.payload = { cipherText: cipherText };
+                    msg.payload = {
+                        cipherText: cipherText.save(),
+                        timestamp: cipherTextTime.save(),
+                    };
                     // if not error show chainIndex of output ciphertext
 
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: cipherText.clone() };
-                        msgArray.push(newMsg);
-                    }
+                    cipherText.delete();
+                    cipherTextTime.delete();
+                    plainText.delete();
+                    publicKey.delete();
+                    encryptor.delete();
 
-                    node.send(msgArray, false);
+                    node.send(msg, true);
                 }
             } catch (err) {
                 node.error(err);
@@ -141,5 +151,5 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType("encrypt", encryptHandle);
+    RED.nodes.registerType("encrypt-pack", encryptHandle);
 };
