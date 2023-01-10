@@ -85,6 +85,7 @@ module.exports = function (RED) {
                 } else if (!publicKeyNode) {
                     throw new Error(`PublicKey node not found`);
                 } else {
+                    console.log("encrypt debug 1");
                     //get seal objects needed to encrypt the value from the config node
                     const context = contextNode.context;
                     const scale = contextNode.scale;
@@ -92,6 +93,8 @@ module.exports = function (RED) {
                     publicKey.load(context, publicKeyNode.publicKeyBase64);
                     const encoder = contextNode.encoder;
                     const encryptor = seal.Encryptor(context, publicKey);
+
+                    console.log("encrypt debug 2");
 
                     if (payload.length > encoder.slotCount) {
                         throw new Error(
@@ -108,6 +111,7 @@ module.exports = function (RED) {
                     const cipherText = encryptor.encrypt(plainText);
 
                     const chainIndex = getChainIndex(cipherText, context);
+                    console.log("encrypt debug 3");
 
                     node.status({
                         fill: "green",
@@ -130,6 +134,7 @@ module.exports = function (RED) {
                     plainText.delete();
                     publicKey.delete();
                     encryptor.delete();
+                    console.log("encrypt debug 4");
                 }
             } catch (err) {
                 node.error(err);
