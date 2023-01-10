@@ -96,6 +96,7 @@ module.exports = function (RED) {
                     const publicKey = seal.PublicKey();
                     console.log("encrypt debug 4");
 
+                    console.log(context, publicKeyNode.publicKeyBase64);
                     publicKey.load(context, publicKeyNode.publicKeyBase64);
                     console.log("encrypt debug 5");
 
