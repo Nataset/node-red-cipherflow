@@ -1,13 +1,16 @@
 module.exports = async function (RED) {
+    const SEAL = require("node-seal");
     const random = require("randomstring");
+    const seal = await SEAL();
+
     function contextHandle(config) {
         RED.nodes.createNode(this, config);
         const keyId = random.generate(4);
         const nodeContext = this.context();
 
-        const globalContext = this.context().global;
-        const seal = globalContext.get("seal");
-        if (!seal) return;
+        // const globalContext = this.context().global;
+        // const seal = globalContext.get("seal");
+        // if (!seal) return;
 
         const schemeType = seal.SchemeType.ckks;
         const securityLevel = seal.SecurityLevel.none;
