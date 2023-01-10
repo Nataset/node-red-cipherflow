@@ -77,6 +77,7 @@ module.exports = async function (RED) {
         }
 
         RED.httpNode.get(`/parms/${config.id}`, (req, res) => {
+            console.log();
             const config = nodeContext.get("config");
             const parms = nodeContext.get("parms");
             const scaleExponent = nodeContext.get("scaleExponent");

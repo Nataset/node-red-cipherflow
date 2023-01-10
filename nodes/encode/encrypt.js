@@ -131,10 +131,13 @@ module.exports = function (RED) {
                     msg.latestNodeId = config.id;
                     // pass input node type for checking from node that connected to this node
                     msg.payload = cipherText.save();
+                    console.log("encrypt debug 5.5");
+
                     // if not error show chainIndex of output ciphertext
                     const msgArray = multipleOutput(msg, outputs, cipherText);
 
                     node.send(msgArray);
+                    console.log("encrypt debug 6");
 
                     // delete unuse instance of seal objects prevent out of wasm memory error
                     cipherText.delete();
