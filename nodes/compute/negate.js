@@ -28,17 +28,15 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error(`SEAL Contexts not found`);
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error(`CipherText not found`);
                 }
-
-                // clone input ciphertext to prevent race condition error
-                const inputCipher = msg.payload.cipherText;
-                const cipherText = inputCipher.clone();
-
                 // declare varibale for negate ciphertext
                 const evaluator = contextNode.evaluator;
                 const context = contextNode.context;
+
+                const cipherText = seal.CipherText();
+                cipherText.load(context, msg.payload);
 
                 // negate the ciphertext
                 evaluator.negate(cipherText, cipherText);
@@ -53,17 +51,12 @@ module.exports = function (RED) {
                 });
 
                 msg.latestNodeId = config.id;
-                msg.payload = { cipherText: cipherText };
-                const msgArray = [msg];
-                for (i = 1; i < outputs; i++) {
-                    const newMsg = { ...msg };
-                    newMsg.payload = { cipherText: cipherText.clone() };
-                    msgArray.push(newMsg);
-                }
-                node.send(msgArray, false);
+                msg.payload = cipherText.save();
+
+                node.send(msg);
 
                 // delete unuse seal instance prevent out of wasm memory error
-                inputCipher.delete();
+                cipherText.delete();
             } catch (err) {
                 node.error(err);
                 node.status({

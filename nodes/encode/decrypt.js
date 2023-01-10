@@ -19,11 +19,11 @@ module.exports = function (RED) {
                 } else if (!secretKeyNode) {
                     throw new Error(`SecretKey Node not found`);
                 } else {
-                    const inputCipher = msg.payload.cipherText;
-                    const cipherText = inputCipher.clone();
+                    const context = contextNode.context;
+                    const cipherText = seal.CipherText();
+                    cipherText.load(context, msg.payload);
 
                     // get seal objects needed to encrypt the value from the config node
-                    const context = contextNode.context;
                     const secretKey = seal.SecretKey();
                     secretKey.load(context, secretKeyNode.secretKeyBase64);
                     const encoder = contextNode.encoder;
@@ -38,7 +38,6 @@ module.exports = function (RED) {
                     node.send(msg);
 
                     // delete unuse seal instance prevent out of wasm memory error
-                    inputCipher.delete();
                     decryptor.delete();
                     plainText.delete();
                     cipherText.delete();

@@ -41,19 +41,16 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error("SEALContext node not found");
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error("CipherText not found");
                 } else {
-                    // compute new exact value of this node
-
-                    // clone the ciphertext prevent race condition
-                    const inputCipher = msg.payload.cipherText;
-                    const cipherText = inputCipher.clone();
-
                     // get seal objects needed to add value to the ciphertext from the config node
                     const context = contextNode.context;
                     const encoder = contextNode.encoder;
                     const evaluator = contextNode.evaluator;
+
+                    const cipherText = seal.CipherText();
+                    cipherText.load(context, msg.payload);
 
                     // encode add value to plaintext before add to the ciphertext;
                     const array = Float64Array.from(
@@ -81,19 +78,12 @@ module.exports = function (RED) {
                     });
 
                     msg.latestNodeId = config.id;
-                    msg.payload = { cipherText: cipherText };
+                    msg.payload = cipherText.save();
 
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: cipherText.clone() };
-                        msgArray.push(newMsg);
-                    }
-
-                    node.send(msgArray, false);
+                    node.send(msg);
 
                     // delete unuse instance of seal objects prevent out of wasm memory error
-                    inputCipher.delete();
+                    cipherText.delete();
                     plainText.delete();
                 }
             } catch (err) {

@@ -1,6 +1,6 @@
 {
 	"name": "node-red-cipherflow",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "microsoft seal for Node-RED.",
 	"main": "nodes/ckks/ckks-encrypt.js",
 	"keywords": [
@@ -32,10 +32,7 @@
 			"multi(P)": "nodes/compute/multiPlain.js",
 			"negate": "nodes/compute/negate.js",
 			"exponent": "nodes/compute/exponent.js",
-			"reciprocal": "nodes/compute/reciprocal.js",
-			"toBase64": "nodes/convert/toBase64.js",
-			"toCiphertext": "nodes/convert/toCiphertext.js",
-			"encryptPack": "nodes/encode/encrypt-pack.js"
+			"reciprocal": "nodes/compute/reciprocal.js"
 		}
 	},
 	"dependencies": {

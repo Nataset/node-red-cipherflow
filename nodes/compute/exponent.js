@@ -39,11 +39,9 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error(`SEALContexts not found`);
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error(`cipherText not found`);
                 } else {
-                    // compule new value of exact result
-
                     // declare variable for power the ciphertext
                     const context = contextNode.context;
                     const evaluator = contextNode.evaluator;
@@ -52,9 +50,10 @@ module.exports = function (RED) {
                     const scale = contextNode.scale;
 
                     // clone ciphertext prevent race condition
-                    const inputCipher = msg.payload.cipherText;
-                    const cipherText = inputCipher.clone();
-                    const resultCipher = inputCipher.clone();
+                    const cipherText = seal.CipherText();
+                    const resultCipher = seal.CipherText();
+                    cipherText.load(context, msg.payload);
+                    resultCipher.load(context, msg.payload);
 
                     // power ciphertext by ciphertext multiply it self n time
                     // rescale each time it multiply
@@ -83,18 +82,12 @@ module.exports = function (RED) {
                     });
 
                     msg.latestNodeId = config.id;
-                    msg.payload = { cipherText: resultCipher };
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: resultCipher.clone() };
-                        msgArray.push(newMsg);
-                    }
+                    msg.payload = resultCipher.save();
 
-                    node.send(msgArray, false);
+                    node.send(msg);
 
                     // delete unuse seal instance prevent out of wasm memory error
-                    inputCipher.delete();
+                    resultCipher.delete();
                     cipherText.delete();
                     relinKey.delete();
                 }

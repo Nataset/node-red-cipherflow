@@ -17,7 +17,6 @@ module.exports = function (RED) {
         const node = this;
         // get value from node html page
         const value = parseFloat(config.value);
-        const outputs = parseInt(config.outputs);
 
         if (!value) {
             const err = new Error("value field is empty");
@@ -41,15 +40,15 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error("SEALContext node not found");
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error("cipherText not found");
                 } else {
-                    // cloen the ciphertext prevent race condition
-                    const inputCipher = msg.payload.cipherText;
-                    const cipherText = inputCipher.clone();
+                    const context = contextNode.context;
+
+                    const cipherText = seal.CipherText();
+                    cipherText.load(context, msg.payload);
 
                     // get seal objects needed to multiply value to the ciphertext from config ndoe
-                    const context = contextNode.context;
                     const encoder = contextNode.encoder;
                     const evaluator = contextNode.evaluator;
                     const scale = contextNode.scale;
@@ -86,18 +85,12 @@ module.exports = function (RED) {
                     });
 
                     msg.latestNodeId = config.id;
-                    msg.payload = { cipherText: cipherText };
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: cipherText.clone() };
-                        msgArray.push(newMsg);
-                    }
+                    msg.payload = cipherText.save();
 
-                    node.send(msgArray, false);
+                    node.send(msg);
 
                     // delete unuse instance of seal objects prevent out of wasm memory error
-                    inputCipher.delete();
+                    cipherText.delete();
                     plainText.delete();
                     relinKey.delete();
                 }

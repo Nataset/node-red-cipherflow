@@ -30,7 +30,7 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error("SEALContext not found");
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error("cipherText not found");
                 }
 
@@ -41,7 +41,7 @@ module.exports = function (RED) {
                 let secondNodeId = nodeContext.get("secondNodeId");
 
                 if (firstNodeId == null || msg.latestNodeId == firstNodeId) {
-                    const firstCipher = msg.payload.cipherText;
+                    const firstCipher = msg.payload;
                     firstNodeId = msg.latestNodeId;
                     nodeContext.set("firstNodeId", firstNodeId);
                     firstQueue.push({
@@ -56,7 +56,7 @@ module.exports = function (RED) {
                     secondNodeId == null ||
                     msg.latestNodeId == secondNodeId
                 ) {
-                    const secondCipher = msg.payload.cipherText;
+                    const secondCipher = msg.payload;
                     secondNodeId = msg.latestNodeId;
                     nodeContext.set("secondNodeId", secondNodeId);
                     secondQueue.push({
@@ -76,11 +76,13 @@ module.exports = function (RED) {
                     const firstValue = firstQueue.shift();
                     const secondValue = secondQueue.shift();
 
-                    // clone first and second ciphertext prevent racecondition
-                    const firstCipher = firstValue.cipher.clone();
-                    const secondCipher = secondValue.cipher.clone();
-
                     const context = contextNode.context;
+
+                    const firstCipher = seal.CipherText();
+                    const secondCipher = seal.CipherText();
+                    firstCipher.load(context, firstValue.cipher);
+                    secondCipher.load(context, secondValue.cipher);
+
                     const evaluator = contextNode.evaluator;
                     const relinKey = seal.RelinKeys();
                     relinKey.load(context, relinKeyNode.relinKeyBase64);
@@ -128,19 +130,12 @@ module.exports = function (RED) {
                     });
 
                     msg.latestNodeId = config.id;
-                    msg.payload = { cipherText: resultCipher };
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: resultCipher.clone() };
-                        msgArray.push(newMsg);
-                    }
+                    msg.payload = resultCipher.save();
 
-                    node.send(msgArray, false);
+                    node.send(msg);
 
                     // delete seal object instance prevent out of wasm memory
-                    firstValue.cipher.delete();
-                    secondValue.cipher.delete();
+                    resultCipher.delete();
                     firstCipher.delete();
                     secondCipher.delete();
                     relinKey.delete();

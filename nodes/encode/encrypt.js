@@ -1,4 +1,5 @@
 module.exports = function (RED) {
+    const multipleOutput = require("../../util/multipleOutput.js");
     const { getChainIndex } = require("../../util/getDetail.js");
 
     function encryptHandle(config) {
@@ -12,6 +13,8 @@ module.exports = function (RED) {
         nodeContext.set("numberArray", []);
 
         const node = this;
+
+        const outputs = parseInt(config.outputs);
 
         // check value in node config
         try {
@@ -43,8 +46,6 @@ module.exports = function (RED) {
             const numberArray = nodeContext.get("numberArray");
             const contextNode = RED.nodes.getNode(config.context);
             const publicKeyNode = RED.nodes.getNode(config.publicKey);
-
-            const outputs = parseInt(config.outputs);
 
             // handle input type of number or array
             let payload;
@@ -114,25 +115,21 @@ module.exports = function (RED) {
                         text: `ChainIndex: ${chainIndex}`,
                     });
 
-                    // delete unuse instance of seal objects prevent out of wasm memory error
-                    plainText.delete();
-                    publicKey.delete();
-                    encryptor.delete();
-
+                    msg.context = { contextNodeId: contextNode.id };
                     // latestNodeId use for check if ciphertext value change, add(E) and multi(E) node using this object property
                     msg.latestNodeId = config.id;
                     // pass input node type for checking from node that connected to this node
-                    msg.payload = { cipherText: cipherText };
+                    msg.payload = cipherText.save();
                     // if not error show chainIndex of output ciphertext
+                    const msgArray = multipleOutput(msg, outputs, cipherText);
 
-                    const msgArray = [msg];
-                    for (i = 1; i < outputs; i++) {
-                        const newMsg = { ...msg };
-                        newMsg.payload = { cipherText: cipherText.clone() };
-                        msgArray.push(newMsg);
-                    }
+                    node.send(msgArray);
 
-                    node.send(msgArray, false);
+                    // delete unuse instance of seal objects prevent out of wasm memory error
+                    cipherText.delete();
+                    plainText.delete();
+                    publicKey.delete();
+                    encryptor.delete();
                 }
             } catch (err) {
                 node.error(err);

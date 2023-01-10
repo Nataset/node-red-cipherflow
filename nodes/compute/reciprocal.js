@@ -19,7 +19,6 @@ module.exports = function (RED) {
         // get max and min possible value from html page;
         const max = parseFloat(config.maxInput);
         // const min = parseFloat(config.minInput);
-        const outputs = parseInt(config.outputs);
         // if max less than min show error
         // if (max < min) {
         // 	const err = new Error(`maximum value can't less than minimum value`);
@@ -43,18 +42,17 @@ module.exports = function (RED) {
             try {
                 if (!contextNode) {
                     throw new Error(`SEAL Contexts not found`);
-                } else if (!msg.payload.cipherText) {
+                } else if (!msg.payload) {
                     throw new Error(`CipherText not found`);
                 }
-                // compule new exact value for this node
+                const context = contextNode.context;
 
                 // clone input ciphertext prevent race condition
-                const inputCipher = msg.payload.cipherText;
-                const cipherText = inputCipher.clone();
+                const cipherText = seal.CipherText();
+                cipherText.load(context, msg.payload);
 
                 // declare variable seal object for needed to reciprocal ciphertext for easy access
                 const evaluator = contextNode.evaluator;
-                const context = contextNode.context;
                 const encoder = contextNode.encoder;
                 const relinKey = seal.RelinKeys();
                 relinKey.load(context, relinKeyNode.relinKeyBase64);
@@ -177,17 +175,12 @@ module.exports = function (RED) {
                 });
 
                 msg.latestNodeId = config.id;
-                msg.payload = { cipherText: resultEncryArray };
-                const msgArray = [msg];
-                for (i = 1; i < outputs; i++) {
-                    const newMsg = { ...msg };
-                    newMsg.payload = { cipherText: resultEncryArray.clone() };
-                    msgArray.push(newMsg);
-                }
-                node.send(msgArray, false);
+                msg.payload = resultEncryArray.save();
+
+                node.send(msg);
 
                 // delete unuse instance of seal objects prevent out of wasm memory error
-                inputCipher.delete();
+                resultEncryArray.delete();
                 plain1.delete();
                 plain2.delete();
                 a0Cipher.delete();
